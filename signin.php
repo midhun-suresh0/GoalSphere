@@ -81,7 +81,7 @@ $conn->close();
 <body class="bg-black min-h-screen">
     <!-- Back to Home Button -->
     <div class="absolute top-4 left-4">
-        <a href="index.html" class="flex items-center text-white hover:text-gray-300 transition-colors">
+        <a href="index.php" class="flex items-center text-white hover:text-gray-300 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -139,7 +139,7 @@ $conn->close();
                         </div>
 
                         <div class="text-sm">
-                            <a href="#" class="font-medium text-green-500 hover:text-green-400">
+                            <a href="forgot.php" class="font-medium text-green-500 hover:text-green-400">
                                 Forgot your password?
                             </a>
                         </div>

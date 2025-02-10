@@ -16,7 +16,7 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Logo and Main Nav -->
                 <div class="flex items-center space-x-8">
-                    <a href="index.html" class="text-2xl font-bold">GoalSphere</a>
+                    <a href="index.php" class="text-2xl font-bold">GoalSphere</a>
                     <div class="hidden md:flex space-x-8">
                         <a href="matches.html" class="hover:text-gray-300">Matches</a>
                         <a href="#teams" class="hover:text-gray-300">Teams</a>
@@ -97,6 +97,7 @@
                                 <a href="#" class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Read More</a>
                             </div>
                         </div>
+                        <div id="news-container"></div>
                         <!-- Add two more fallback news items similar to your original design -->
                     <?php endif; ?>
                 </div>
@@ -127,5 +128,44 @@
     <script src="js/auth.js"></script>
     <script src="js/matches.js"></script>
     <script src="js/news.js"></script>
+    <script>
+const apiKey = '4f298553743744078783c4c6593aa043'; // Replace with your API key
+const url = `https://newsapi.org/v2/top-headlines?category=sports&language=en&apiKey=${apiKey}`;
+
+async function fetchSportsNews() {
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+            displayNews(data.articles);
+        } else {
+            console.error('Error fetching news:', data);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayNews(articles) {
+    const newsContainer = document.getElementById('news-container');
+    newsContainer.innerHTML = ''; // Clear previous content
+    
+    articles.forEach(article => {
+        const newsItem = document.createElement('div');
+        newsItem.className = 'news-item bg-gray-900 text-white p-4 mb-4 rounded-lg';
+        newsItem.innerHTML = `
+            <h3 class="text-lg font-semibold">${article.title}</h3>
+            <p class="text-gray-300">${article.description || 'No description available.'}</p>
+            <a href="${article.url}" target="_blank" class="text-green-400 hover:underline">Read More</a>
+        `;
+        newsContainer.appendChild(newsItem);
+    });
+}
+
+// Call the function to fetch news
+fetchSportsNews();
+
+    </script>
 </body>
 </html> 
