@@ -68,21 +68,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // Insert into the database
-    $sql = "INSERT INTO users (first_name, last_name, email, password, terms_accepted) 
-            VALUES ('$first_name', '$last_name', '$email', '$hashed_password', '$terms')";
+    // $sql = "INSERT INTO users (first_name, last_name, email, password, terms_accepted) 
+    //         VALUES ('$first_name', '$last_name', '$email', '$hashed_password', '$terms')";
 
-    if ($conn->query($sql) === TRUE) {
-        echo "New record created successfully";
-        // Redirect to login page after successful registration
-        header("Location: sign.php");
-        exit();
-    } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
-    }
+    
+
+    $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, terms_accepted) 
+                        VALUES (?, ?, ?, ?, ?)");
+
+// Debugging check
+if (!$stmt) {
+    die("Error in users table query: " . $conn->error);
 }
 
-// Close the database connection
+// Bind parameters (s = string, i = integer)
+$stmt->bind_param("ssssi", $first_name, $last_name, $email, $hashed_password, $terms);
+
+if ($stmt->execute()) {
+    $user_id = $stmt->insert_id; // Get inserted user ID
+
+    // Prepare SQL statement for login table
+    $stmt2 = $conn->prepare("INSERT INTO login (user_id, email, password) VALUES (?, ?, ?)");
+
+    if (!$stmt2) {
+        die("Error in login table query: " . $conn->error);
+    }
+
+    $stmt2->bind_param("iss", $user_id, $email, $hashed_password);
+
+    if ($stmt2->execute()) {
+        header("Location: signin.php");
+        exit();
+    } else {
+        echo "Error inserting into login table: " . $stmt2->error;
+    }
+} else {
+    echo "Error inserting into users table: " . $stmt->error;
+}
+
+// Close statements and connection
+$stmt->close();
+$stmt2->close();
 $conn->close();
+}
+// Close statements and connection
+
+
+// Close the database connection
+
 ?>
 
 <!DOCTYPE html>

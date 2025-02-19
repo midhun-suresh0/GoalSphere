@@ -39,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Password is correct, start session and login user
             session_start();
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['email'] = $user['email'];
             
             // Remember the user if the "Remember me" checkbox is checked
             if ($remember_me) {
@@ -48,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             // Redirect to the dashboard or home page after successful login
-            header("Location: index.html"); // Change this to your desired page
+            header("Location: index.php"); // Change this to your desired page
             exit();
         } else {
             header("Location: signin.php");

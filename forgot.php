@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         if ($result && $result->num_rows === 1) {
             $user = $result->fetch_assoc();
-            echo'<form id="form" method="POST" action="send_reset_otp.php">';
+            echo'<form id="form" method="POST" action="send_otp.php">';
             echo '<input type="hidden" name="email" value="' . $email . '">';
             echo'</form>';
             echo'<script>document.getElementById("form").submit();</script>';

@@ -19,12 +19,12 @@ function sendVerificationEmail($recipientEmail, $verificationCode) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'midhunsuresh@gmail.com';
-        $mail->Password   = 'olal qtcm wdhl cyyx';
+        $mail->Username   = 'midhunsuresh487@gmail.com';
+        $mail->Password   = 'hgfa dukf dqin vuug';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        $mail->setFrom('taskmate0369@gmail.com', 'Taskmate');
+        $mail->setFrom('midhunsuresh487@gmail.com', 'GoalSphere');
         $mail->addAddress($recipientEmail);
         $mail->Subject = 'Your Verification Code';
         $mail->Body    = "Your verification code is: $verificationCode\n\nThis code will expire in 10 minutes.";
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (isset($_POST['verify'])) {
         $enteredOTP = $_POST['otp1'] . $_POST['otp2'] . $_POST['otp3'] . $_POST['otp4'] . $_POST['otp5'] . $_POST['otp6'];
         if ($enteredOTP == $_SESSION['verification_code']) {
-            header('Location: resetpassword.php');
+            header('Location: reset_password.php');
             unset($_SESSION['verification_code']);  
         } else {
             $error_message="Incorrect OTP.";
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskMate - OTP Verification</title>
+    <title>GoalSphere - OTP Verification</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -78,29 +78,61 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         body {
-            background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+            background-image: url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 2rem;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1;
         }
 
         .login-container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 2.5rem;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 400px;
-            animation: slideUp 0.5s ease-out;
+            animation: bounceIn 0.6s ease-out;
+            position: relative;
+            z-index: 2;
+            border: 2px solid #2563eb;
         }
 
         .logo {
             text-align: center;
             margin-bottom: 2rem;
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 700;
+            position: relative;
+        }
+
+        .logo::after {
+            content: '⚽';
+            position: absolute;
+            font-size: 1.5rem;
+            margin-left: 10px;
+            animation: spin 4s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .task { color: #2563eb; }
@@ -109,101 +141,132 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         h2 {
             text-align: center;
             color: #1e293b;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
+        .otp-description {
+            text-align: center;
             color: #64748b;
-            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
         }
 
         .otp-inputs {
             display: flex;
-            justify-content: space-between;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
         }
 
         .otp-inputs input {
-            width: 3rem;
-            height: 3rem;
+            width: 3.5rem;
+            height: 3.5rem;
             text-align: center;
             font-size: 1.5rem;
             border: 2px solid #e2e8f0;
             border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
             transition: all 0.3s ease;
         }
 
         .otp-inputs input:focus {
             outline: none;
             border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
 
         .login-btn {
             width: 100%;
             padding: 1rem;
-            background: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 500;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
         }
 
         .login-btn:hover {
-            background: #1d4ed8;
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
         }
 
         .resend-text {
             text-align: center;
-            margin-top: 1.5rem;
-            color: #64748b;
+            color: #1e293b;
+            font-size: 1rem;
         }
 
         .resend-text a {
             color: #2563eb;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
             transition: color 0.3s ease;
         }
 
         .resend-text a:hover {
             color: #1d4ed8;
-        }
-        .error-message {
-            background-color: #fee2e2;
-            color: #dc2626;
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            text-align: center;
+            text-decoration: underline;
         }
 
-        @keyframes slideUp {
-            from {
+        .error-message {
+            background-color: rgba(254, 226, 226, 0.9);
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 500;
+            border: 1px solid #dc2626;
+        }
+
+        @keyframes bounceIn {
+            0% {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: scale(0.3);
             }
-            to {
+            50% {
+                opacity: 0.9;
+                transform: scale(1.1);
+            }
+            80% {
                 opacity: 1;
-                transform: translateY(0);
+                transform: scale(0.89);
             }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Football pattern overlay */
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle at 10px 10px, rgba(37, 99, 235, 0.1) 2px, transparent 0);
+            background-size: 30px 30px;
+            border-radius: 20px;
+            z-index: -1;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="logo">
-            <span class="task">Task</span><span class="mate">Mate</span>
+            <span class="task">Goal</span><span class="mate">Sphere</span>
         </div>
         <h2>OTP Verification</h2>
         <?php if (!empty($error_message)): ?>
@@ -211,9 +274,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <?php echo htmlspecialchars($error_message); ?>
             </div>
         <?php endif; ?>
-        <p style="text-align: center; color: #64748b; margin-bottom: 1.5rem;">Enter the 6-digit code sent to your email.</p>
+        <p class="otp-description">Enter the 6-digit code sent to your email.</p>
         <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-            <div class="form-group otp-inputs">
+            <div class="otp-inputs">
                 <input type="text" maxlength="1" required oninput="moveToNext(this, 'otp2')" id="otp1" name="otp1">
                 <input type="text" maxlength="1" required oninput="moveToNext(this, 'otp3')" id="otp2" name="otp2">
                 <input type="text" maxlength="1" required oninput="moveToNext(this, 'otp4')" id="otp3" name="otp3">

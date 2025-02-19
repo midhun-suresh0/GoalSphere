@@ -1,5 +1,6 @@
-
-
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,8 +38,38 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     </button>
-                    <a href="signin.php" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Sign In</a>
-                    <a href="register.php" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors border border-gray-600">Join</a>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <div class="flex items-center space-x-4">
+                            <!-- User Avatar -->
+                            <div class="relative inline-block text-left">
+                                <a href="profile.php" class="flex items-center">
+                                    <div class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors">
+                                        <span class="text-white font-semibold text-lg">
+                                            <?php
+                                            
+                                            if(isset($_SESSION['email'])&& !empty($_SESSION['email'])){
+                                                echo strtoupper(substr($_SESSION['email'],0,1));
+                                            }else{
+                                                echo'G';
+                                            }
+                                            ?>
+                                        </span>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <!-- Logout Button -->
+                            <a href="logout.php" class="bg-gray-700 text-red-400 px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <a href="signin.php" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Sign In</a>
+                        <a href="register.php" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors border border-gray-600">Join</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -55,7 +86,9 @@
                 <div class="max-w-3xl">
                     <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">Welcome to GoalSphere</h1>
                     <p class="text-xl mb-8 text-gray-200">Your ultimate destination for football updates, news, and more.</p>
-                    <a href="signin.php" class="inline-block bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition-colors border border-white">Get Started</a>
+                    <?php if (!isset($_SESSION['user_id'])): ?>
+                        <a href="signin.php" class="inline-block bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition-colors border border-white">Get Started</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -165,6 +198,34 @@ function displayNews(articles) {
 
 // Call the function to fetch news
 fetchSportsNews();
+
+// User menu functionality
+function toggleDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('userDropdown');
+    const button = event.target.closest('button');
+    
+    if (dropdown && !button && !dropdown.contains(event.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// Close dropdown when pressing Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const dropdown = document.getElementById('userDropdown');
+        if (dropdown) {
+            dropdown.classList.add('hidden');
+        }
+    }
+});
 
     </script>
 </body>
