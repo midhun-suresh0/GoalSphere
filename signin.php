@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Database connection
 $host = 'localhost'; // Change this if your MySQL server is hosted somewhere else
 $dbname = 'goalsphere';
@@ -29,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Check if the email exists in the database
     $sql = "SELECT * FROM users WHERE email = '$user_email'";
     $result = $conn->query($sql);
+    $sql2 = "SELECT * FROM admin WHERE email = '$user_email'";
+    $result2 = $conn->query($sql2);
 
     if ($result->num_rows > 0) {
         // Fetch the user data
@@ -51,7 +54,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Redirect to the dashboard or home page after successful login
             header("Location: index.php"); // Change this to your desired page
             exit();
-        } else {
+        }
+    }
+        else if($result2->num_rows > 0){
+            $admin = $result2->fetch_assoc();
+            if(password_verify($user_password, $admin['password'])){
+                $_SESSION['admin_id'] = $admin['id'];
+                $_SESSION['admin_email'] = $admin['email'];
+                header("Location: admin.php");
+                
+            }
+        
+        else {
             header("Location: signin.php");
         }
     } else {

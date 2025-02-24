@@ -1,94 +1,43 @@
-/* Custom animations and styles */
-@keyframes score-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+.user-menu {
+    position: relative;
+    display: inline-block;
 }
 
-.live-score {
-    animation: score-pulse 2s infinite;
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #007bff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-/* Custom hover effects */
-.team-card:hover {
-    transform: translateY(-5px);
-    transition: transform 0.3s ease;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #888;
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
     border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #555;
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
 }
 
-/* Responsive font sizes */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 2.5rem;
-    }
-    h2 {
-        font-size: 2rem;
-    }
-} 
-
-/* Custom scrollbar for calendar */
-#matches .overflow-x-auto::-webkit-scrollbar {
-    height: 6px;
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
 }
 
-#matches .overflow-x-auto::-webkit-scrollbar-track {
-    background: #1a1a1a;
-    border-radius: 3px;
-}
-
-#matches .overflow-x-auto::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 3px;
-}
-
-#matches .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-    background: #444;
-}
-
-/* Match card hover effect */
-.match-card {
-    transition: all 0.3s ease;
-}
-
-.match-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Live match animation */
-@keyframes livePulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.6; }
-    100% { opacity: 1; }
-}
-
-.live-indicator {
-    animation: livePulse 2s infinite;
-}
-
-#loading {
-    transition: all 0.3s ease;
-}
-
-.scores {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 1rem 0;
+.show {
+    display: block;
 } 

@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'includes/language.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,9 +20,9 @@ session_start();
                 <div class="flex items-center space-x-8">
                     <a href="index.php" class="text-2xl font-bold">GoalSphere</a>
                     <div class="hidden md:flex space-x-8">
-                        <a href="matches.html" class="hover:text-gray-300">Matches</a>
-                        <a href="#teams" class="hover:text-gray-300">Teams</a>
-                        <a href="#competitions" class="hover:text-gray-300">Competitions</a>
+                        <a href="matches.php" class="hover:text-gray-300"><?php echo __('matches'); ?></a>
+                        <a href="#teams" class="hover:text-gray-300"><?php echo __('teams'); ?></a>
+                        <a href="#competitions" class="hover:text-gray-300"><?php echo __('competitions'); ?></a>
                     </div>
                 </div>
 
@@ -32,12 +33,75 @@ session_start();
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </button>
-                    <button class="p-2 hover:bg-gray-800 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </button>
+                    <div class="relative">
+                        <a href="settings.php" class="p-2 hover:bg-gray-800 rounded-full inline-flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </a>
+                        
+                        <!-- Settings Panel -->
+                        <div id="settingsPanel" class="hidden absolute right-0 mt-2 w-80 bg-gray-900 rounded-lg shadow-xl z-50">
+                            <div class="p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Settings</h3>
+                                
+                                <!-- Language Settings -->
+                                <div class="mb-6">
+                                    <h4 class="text-sm font-medium text-gray-400 mb-3">Language</h4>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button onclick="updateSettings('language', 'en')" class="flex items-center justify-between px-3 py-2 bg-gray-800 rounded-lg text-white hover:bg-gray-700 transition-colors">
+                                            <span>English</span>
+                                            <?php if (($_SESSION['language'] ?? 'en') === 'en'): ?>
+                                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                            <?php endif; ?>
+                                        </button>
+                                        <button onclick="updateSettings('language', 'es')" class="flex items-center justify-between px-3 py-2 bg-gray-800 rounded-lg text-white hover:bg-gray-700 transition-colors">
+                                            <span>Español</span>
+                                            <?php if (($_SESSION['language'] ?? '') === 'es'): ?>
+                                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                            <?php endif; ?>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Display Mode -->
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-400 mb-3">Display Mode</h4>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <button onclick="updateSettings('display_mode', 'auto')" class="flex items-center justify-between px-3 py-2 bg-gray-800 rounded-lg text-white hover:bg-gray-700 transition-colors">
+                                            <span>Auto</span>
+                                            <?php if (($_SESSION['display_mode'] ?? 'auto') === 'auto'): ?>
+                                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                            <?php endif; ?>
+                                        </button>
+                                        <button onclick="updateSettings('display_mode', 'dark')" class="flex items-center justify-between px-3 py-2 bg-gray-800 rounded-lg text-white hover:bg-gray-700 transition-colors">
+                                            <span>Dark</span>
+                                            <?php if (($_SESSION['display_mode'] ?? '') === 'dark'): ?>
+                                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                            <?php endif; ?>
+                                        </button>
+                                        <button onclick="updateSettings('display_mode', 'light')" class="flex items-center justify-between px-3 py-2 bg-gray-800 rounded-lg text-white hover:bg-gray-700 transition-colors">
+                                            <span>Light</span>
+                                            <?php if (($_SESSION['display_mode'] ?? '') === 'light'): ?>
+                                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                            <?php endif; ?>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <div class="flex items-center space-x-4">
                             <!-- User Avatar -->
@@ -67,8 +131,12 @@ session_start();
                             </a>
                         </div>
                     <?php else: ?>
-                        <a href="signin.php" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Sign In</a>
-                        <a href="register.php" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors border border-gray-600">Join</a>
+                        <a href="signin.php" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                            <?php echo __('signin'); ?>
+                        </a>
+                        <a href="register.php" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors border border-gray-600">
+                            <?php echo __('join'); ?>
+                        </a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -84,10 +152,12 @@ session_start();
             
             <div class="container mx-auto px-4 relative z-10">
                 <div class="max-w-3xl">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">Welcome to GoalSphere</h1>
-                    <p class="text-xl mb-8 text-gray-200">Your ultimate destination for football updates, news, and more.</p>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white"><?php echo __('welcome'); ?></h1>
+                    <p class="text-xl mb-8 text-gray-200"><?php echo __('subtitle'); ?></p>
                     <?php if (!isset($_SESSION['user_id'])): ?>
-                        <a href="signin.php" class="inline-block bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition-colors border border-white">Get Started</a>
+                        <a href="signin.php" class="inline-block bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition-colors border border-white">
+                            <?php echo __('get_started'); ?>
+                        </a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -97,45 +167,76 @@ session_start();
         <section class="py-16 bg-black">
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-bold text-white mb-8">Top News</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <?php if ($newsData && $newsData['status'] === 'ok'): ?>
-                        <?php foreach (array_slice($newsData['articles'], 0, 3) as $article): ?>
-                            <div class="bg-gray-900 rounded-lg overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
-                                <img src="<?php echo htmlspecialchars($article['urlToImage'] ?? 'images/default-news.jpg'); ?>" 
-                                     alt="News Image" 
-                                     class="w-full h-48 object-cover"
-                                     onerror="this.src='images/default-news.jpg'">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-semibold text-white mb-2">
-                                        <?php echo htmlspecialchars($article['title']); ?>
-                                    </h3>
-                                    <p class="text-gray-400 mb-4">
-                                        <?php echo htmlspecialchars(substr($article['description'], 0, 100)) . '...'; ?>
-                                    </p>
-                                    <a href="<?php echo htmlspecialchars($article['url']); ?>" 
-                                       target="_blank"
-                                       class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                                        Read More
-                                    </a>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <!-- Fallback content in case API fails -->
-                        <div class="bg-gray-900 rounded-lg overflow-hidden">
-                            <img src="images/news1.jpg" alt="News 1" class="w-full h-48 object-cover">
-                            <div class="p-6">
-                                <h3 class="text-xl font-semibold text-white mb-2">Latest Match Updates</h3>
-                                <p class="text-gray-400 mb-4">Stay updated with the latest football matches and scores...</p>
-                                <a href="#" class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Read More</a>
-                            </div>
+                
+                <!-- Featured News Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                    <a href="news-detail.php?id=1" class="bg-gray-900 rounded-lg overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
+                        <img src="images/news1.jpg" alt="News 1" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Manchester United Secures Dramatic Win</h3>
+                            <p class="text-gray-400 mb-4">A last-minute goal from Marcus Rashford sends United through...</p>
+                            <span class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg">Read More</span>
                         </div>
-                        <div id="news-container"></div>
-                        <!-- Add two more fallback news items similar to your original design -->
-                    <?php endif; ?>
+                    </a>
+
+                    <a href="news-detail.php?id=2" class="bg-gray-900 rounded-lg overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
+                        <img src="images/news2.jpg" alt="News 2" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Liverpool Announces New Signing</h3>
+                            <p class="text-gray-400 mb-4">The Reds strengthen their squad with promising young midfielder...</p>
+                            <span class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg">Read More</span>
+                        </div>
+                    </a>
+
+                    <a href="news-detail.php?id=3" class="bg-gray-900 rounded-lg overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
+                        <img src="images/news3.jpg" alt="News 3" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Champions League Draw Results</h3>
+                            <p class="text-gray-400 mb-4">Exciting matchups ahead in the knockout stages...</p>
+                            <span class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg">Read More</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Additional News List -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <a href="news-detail.php?id=4" class="bg-gray-900 rounded-lg p-4 flex gap-4 hover:bg-gray-800 transition-colors">
+                        <img src="images/news4.jpg" alt="News 4" class="w-24 h-24 object-cover rounded">
+                        <div>
+                            <h3 class="text-white font-semibold mb-2">Premier League Transfer Updates</h3>
+                            <p class="text-gray-400 text-sm">Latest transfer news and rumors from the Premier League...</p>
+                        </div>
+                    </a>
+
+                    <a href="news-detail.php?id=5" class="bg-gray-900 rounded-lg p-4 flex gap-4 hover:bg-gray-800 transition-colors">
+                        <img src="images/news5.jpg" alt="News 5" class="w-24 h-24 object-cover rounded">
+                        <div>
+                            <h3 class="text-white font-semibold mb-2">World Cup 2026 Preparations</h3>
+                            <p class="text-gray-400 text-sm">Updates on the preparations for the upcoming World Cup...</p>
+                        </div>
+                    </a>
                 </div>
             </div>
         </section>
+
+        <!-- News Detail Modal -->
+        <div id="newsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-gray-900 rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-end">
+                        <button onclick="closeNewsDetail()" class="text-gray-400 hover:text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <img id="modalImage" src="" alt="News Image" class="w-full h-64 object-cover rounded-lg mb-6">
+                    <h2 id="modalTitle" class="text-2xl font-bold text-white mb-4"></h2>
+                    <p id="modalDate" class="text-gray-400 mb-4"></p>
+                    <p id="modalDescription" class="text-gray-300 mb-6"></p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
@@ -224,6 +325,93 @@ document.addEventListener('keydown', function(event) {
         if (dropdown) {
             dropdown.classList.add('hidden');
         }
+    }
+});
+
+function toggleSettings(event) {
+    event.preventDefault(); // Prevent the default link behavior
+    const panel = document.getElementById('settingsPanel');
+    if (panel) {
+        panel.classList.toggle('hidden');
+        // Add event listener for clicking outside
+        setTimeout(() => {
+            document.addEventListener('click', closeSettingsOnClickOutside);
+        }, 0);
+    }
+}
+
+// Function to close settings when clicking outside
+function closeSettingsOnClickOutside(event) {
+    const panel = document.getElementById('settingsPanel');
+    const settingsButton = event.target.closest('button');
+    
+    if (panel && !panel.contains(event.target) && !settingsButton?.contains(event.target)) {
+        panel.classList.add('hidden');
+        document.removeEventListener('click', closeSettingsOnClickOutside);
+    }
+}
+
+// Close settings panel when pressing Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const panel = document.getElementById('settingsPanel');
+        if (panel && !panel.classList.contains('hidden')) {
+            panel.classList.add('hidden');
+        }
+    }
+});
+
+function updateSettings(type, value) {
+    fetch('update_settings.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ type, value })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+function showNewsDetail(title, description, image, date, fullContent) {
+    const modal = document.getElementById('newsModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDescription = document.getElementById('modalDescription');
+    const modalDate = document.getElementById('modalDate');
+
+    modalImage.src = image;
+    modalTitle.textContent = title;
+    modalDescription.textContent = fullContent;
+    modalDate.textContent = date;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeNewsDetail();
+        }
+    });
+}
+
+function closeNewsDetail() {
+    const modal = document.getElementById('newsModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeNewsDetail();
     }
 });
 
