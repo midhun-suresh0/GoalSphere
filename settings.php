@@ -72,6 +72,9 @@ if (!isset($_SESSION['user_id'])) {
                                 <label for="new_password" class="block text-white mb-2">New Password</label>
                                 <input type="password" id="new_password" name="new_password" 
                                     class="w-full bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-gray-400 text-sm mt-1">
+                                    Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character.
+                                </p>
                             </div>
                             <div>
                                 <label for="confirm_password" class="block text-white mb-2">Confirm New Password</label>
@@ -107,20 +110,59 @@ if (!isset($_SESSION['user_id'])) {
         });
     }
 
+    function validatePassword(password) {
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumbers = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        
+        const errors = [];
+        
+        if (password.length < minLength) {
+            errors.push(`Password must be at least ${minLength} characters long`);
+        }
+        if (!hasUpperCase) {
+            errors.push('Password must contain at least one uppercase letter');
+        }
+        if (!hasLowerCase) {
+            errors.push('Password must contain at least one lowercase letter');
+        }
+        if (!hasNumbers) {
+            errors.push('Password must contain at least one number');
+        }
+        if (!hasSpecialChar) {
+            errors.push('Password must contain at least one special character');
+        }
+        
+        return errors;
+    }
+
     document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const currentPassword = document.getElementById('current_password').value;
         const newPassword = document.getElementById('new_password').value;
         const confirmPassword = document.getElementById('confirm_password').value;
         const messageDiv = document.getElementById('passwordMessage');
-
+        
+        // Reset message styling
+        messageDiv.classList.remove('hidden', 'text-red-500', 'text-green-500');
+        
+        // Validate new password
+        const passwordErrors = validatePassword(newPassword);
+        if (passwordErrors.length > 0) {
+            messageDiv.innerHTML = passwordErrors.join('<br>');
+            messageDiv.className = 'text-red-500 mt-2';
+            return;
+        }
+        
+        // Check if passwords match
         if (newPassword !== confirmPassword) {
             messageDiv.textContent = 'New passwords do not match';
             messageDiv.className = 'text-red-500 mt-2';
-            messageDiv.classList.remove('hidden');
             return;
         }
-
+        
         // Create form data
         const formData = new FormData();
         formData.append('current_password', currentPassword);
@@ -146,8 +188,47 @@ if (!isset($_SESSION['user_id'])) {
         .catch(error => {
             messageDiv.textContent = 'An error occurred';
             messageDiv.className = 'text-red-500 mt-2';
-            messageDiv.classList.remove('hidden');
         });
+    });
+
+    // Add real-time validation feedback
+    document.getElementById('new_password').addEventListener('input', function() {
+        const password = this.value;
+        const messageDiv = document.getElementById('passwordMessage');
+        const errors = validatePassword(password);
+        
+        if (password.length > 0) {
+            if (errors.length > 0) {
+                messageDiv.innerHTML = errors.join('<br>');
+                messageDiv.className = 'text-red-500 mt-2';
+                messageDiv.classList.remove('hidden');
+            } else {
+                messageDiv.textContent = 'Password meets all requirements';
+                messageDiv.className = 'text-green-500 mt-2';
+                messageDiv.classList.remove('hidden');
+            }
+        } else {
+            messageDiv.classList.add('hidden');
+        }
+    });
+
+    // Add confirmation match check
+    document.getElementById('confirm_password').addEventListener('input', function() {
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = this.value;
+        const messageDiv = document.getElementById('passwordMessage');
+        
+        if (confirmPassword.length > 0) {
+            if (newPassword !== confirmPassword) {
+                messageDiv.textContent = 'Passwords do not match';
+                messageDiv.className = 'text-red-500 mt-2';
+                messageDiv.classList.remove('hidden');
+            } else {
+                messageDiv.textContent = 'Passwords match';
+                messageDiv.className = 'text-green-500 mt-2';
+                messageDiv.classList.remove('hidden');
+            }
+        }
     });
     </script>
 </body>

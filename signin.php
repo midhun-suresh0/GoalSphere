@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 // Database connection
 $host = 'localhost'; // Change this if your MySQL server is hosted somewhere else
 $dbname = 'goalsphere';
@@ -14,18 +15,20 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Add this near the top
+if (isset($_SESSION['access_token'])) {
+    header("Location: index.php");
+    exit;
+}
+
+
+
 // Handle the form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get form data
     $user_email = mysqli_real_escape_string($conn, $_POST['user_email']);
     $user_password = mysqli_real_escape_string($conn, $_POST['user_password']);
     $remember_me = isset($_POST['remember_me']) ? 1 : 0;
-
-    // Validate form data
-    if (empty($user_email) || empty($user_password)) {
-        echo "Please fill in both email and password.";
-        exit();
-    }
 
     // Check if the email exists in the database
     $sql = "SELECT * FROM users WHERE email = '$user_email'";
@@ -37,7 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Fetch the user data
         $user = $result->fetch_assoc();
         
-        // Verify the password
+        // First check if user is active
+        if (!$user['is_active']) {
+            $error_message = "Your account has been deactivated. Please contact support.";
+            header("Location: signin.php?error=" . urlencode($error_message));
+            exit();
+        }
+        
+        // Verify the password only if user is active
         if (password_verify($user_password, $user['password'])) {
             // Password is correct, start session and login user
             session_start();
@@ -47,29 +57,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             // Remember the user if the "Remember me" checkbox is checked
             if ($remember_me) {
-                setcookie('user_email', $user_email, time() + (86400 * 30), "/"); // 1 month cookie
+                setcookie('user_email', $user_email, time() + (86400 * 30), "/");
                 setcookie('user_id', $user['id'], time() + (86400 * 30), "/");
             }
 
-            // Redirect to the dashboard or home page after successful login
-            header("Location: index.php"); // Change this to your desired page
+            header("Location: index.php");
+            exit();
+        } else {
+            $error_message = "Invalid email or password";
+            header("Location: signin.php?error=" . urlencode($error_message));
             exit();
         }
     }
-        else if($result2->num_rows > 0){
-            $admin = $result2->fetch_assoc();
-            if(password_verify($user_password, $admin['password'])){
-                $_SESSION['admin_id'] = $admin['id'];
-                $_SESSION['admin_email'] = $admin['email'];
-                header("Location: admin.php");
-                
-            }
-        
-        else {
-            header("Location: signin.php");
+    else if($result2->num_rows > 0){
+        $admin = $result2->fetch_assoc();
+        if(password_verify($user_password, $admin['password'])){
+            $_SESSION['admin_id'] = $admin['id'];
+            $_SESSION['admin_email'] = $admin['email'];
+            $_SESSION['user_id'] = $admin['id'];
+            header("Location: admin.php");
+            exit();
+        } else {
+            $error_message = "Invalid email or password";
+            header("Location: signin.php?error=" . urlencode($error_message));
+            exit();
         }
     } else {
-        header("Location: signin.php");
+        $error_message = "Invalid email or password";
+        header("Location: signin.php?error=" . urlencode($error_message));
+        exit();
     }
 }
 
@@ -92,6 +108,8 @@ $conn->close();
             margin-top: 0.25rem;
         }
     </style>
+    <meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <body class="bg-black min-h-screen">
     <!-- Back to Home Button -->
@@ -128,6 +146,12 @@ $conn->close();
                     </p>
                 </div>
 
+                <?php if (isset($_GET['error'])): ?>
+                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <?php echo htmlspecialchars($_GET['error']); ?>
+                    </div>
+                <?php endif; ?>
+
                 <form id="signin-form" class="mt-8 space-y-6" method="POST" action="signin.php">
                     <div class="space-y-4">
                         <div>
@@ -145,13 +169,7 @@ $conn->close();
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input id="remember-me" name="remember_me" type="checkbox" value="1"
-                                class="h-4 w-4 bg-gray-900 border-gray-700 rounded text-green-500 focus:ring-green-500">
-                            <label for="remember-me" class="ml-2 block text-sm text-gray-300">
-                                Remember me
-                            </label>
-                        </div>
+                       
 
                         <div class="text-sm">
                             <a href="forgot.php" class="font-medium text-green-500 hover:text-green-400">
@@ -167,7 +185,11 @@ $conn->close();
                         />
                     </div>
 
-                    <div class="relative my-6">
+                  
+                </form>
+
+                <div class="mt-6">
+                    <div class="relative">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-700"></div>
                         </div>
@@ -176,24 +198,16 @@ $conn->close();
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-3">
-                        <button type="button" data-provider="google"
-                            class="flex justify-center items-center py-2 px-4 border border-gray-700 rounded-lg hover:bg-gray-900 transition-colors duration-200">
-                            <img src="images/google.svg" alt="Google" class="h-5 w-5">
-                        </button>
-                        <button type="button" data-provider="apple"
-                            class="flex justify-center items-center py-2 px-4 border border-gray-700 rounded-lg hover:bg-gray-900 transition-colors duration-200">
-                            <img src="images/apple.svg" alt="Apple" class="h-5 w-5">
-                        </button>
-                        <button type="button" data-provider="facebook"
-                            class="flex justify-center items-center py-2 px-4 border border-gray-700 rounded-lg hover:bg-gray-900 transition-colors duration-200">
-                            <img src="images/facebook.svg" alt="Facebook" class="h-5 w-5">
-                        </button>
+                    <div class="mt-6">
+                        <a href="<?php echo htmlspecialchars($googleLoginUrl); ?>" 
+                           class="w-full flex items-center justify-center px-4 py-3 border border-gray-700 rounded-lg shadow-sm bg-gray-900 hover:bg-gray-800 transition-colors duration-200">
+                            <img src="images/google-logo.png" alt="Google" class="h-5 w-5 mr-2">
+                            <span class="text-white">Sign in with Google</span>
+                        </a>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-   
 </body>
 </html>

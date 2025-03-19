@@ -165,13 +165,13 @@ $conn->close();
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label for="first-name" class="text-sm font-medium text-gray-300">First name</label>
-                                <input id="first-name" name="first-name" type="text" required 
+                                <input id="first-name" name="first-name" type="text" required onkeypress="return (event.charCode != 32)"
                                     class="appearance-none relative block w-full px-3 py-3 mt-1 bg-gray-900 border border-gray-700 placeholder-gray-500 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                                 <div id="first-name-error" class="error-message hidden"></div>
                             </div>
                             <div>
                                 <label for="last-name" class="text-sm font-medium text-gray-300">Last name</label>
-                                <input id="last-name" name="last-name" type="text" required 
+                                <input id="last-name" name="last-name" type="text" required onkeypress="return (event.charCode != 32)"
                                     class="appearance-none relative block w-full px-3 py-3 mt-1 bg-gray-900 border border-gray-700 placeholder-gray-500 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                                 <div id="last-name-error" class="error-message hidden"></div>
                             </div>
@@ -186,20 +186,24 @@ $conn->close();
 
                         <div>
                             <label for="password" class="text-sm font-medium text-gray-300 block mb-2">Password</label>
-                            <input type="password" id="password" required 
-                                class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
-                                placeholder="Create a password"
-                                name="password"
-                                onkeyup="checkPasswords()">
+                            <input type="password" 
+                                   id="password" 
+                                   name="password"
+                                   required 
+                                   onkeyup="checkPasswords()"
+                                   class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
+                                   placeholder="Create a password">
                         </div>
 
                         <div>
                             <label for="confirm-password" class="text-sm font-medium text-gray-300 block mb-2">Confirm Password</label>
-                            <input type="password" id="confirm-password" required 
-                                class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
-                                placeholder="Confirm your password"
-                                name="confirm-password"
-                                onkeyup="checkPasswords()">
+                            <input type="password" 
+                                   id="confirm-password" 
+                                   name="confirm-password"
+                                   required 
+                                   onkeyup="checkPasswords()"
+                                   class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
+                                   placeholder="Confirm your password">
                             <p id="password-match" class="text-sm mt-1 hidden"></p>
                         </div>
 
@@ -210,9 +214,8 @@ $conn->close();
                             class="h-4 w-4 bg-gray-900 border-gray-700 rounded text-green-500 focus:ring-green-500">
                         <label for="terms" class="ml-2 block text-sm text-gray-300">
                             I agree to the
-                            <a href="#" class="text-green-500 hover:text-green-400">Terms of Service</a>
-                            and
-                            <a href="#" class="text-green-500 hover:text-green-400">Privacy Policy</a>
+                            
+                            <a href="privacy.php" class="text-green-500 hover:text-green-400">Privacy Policy</a>
                         </label>
                         <div id="terms-error" class="error-message hidden"></div>
                     </div>
@@ -224,26 +227,7 @@ $conn->close();
                         </button>
                     </div>
 
-                    <div class="relative my-6">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-700"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-black text-gray-400">Or join with</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-3">
-                        <button type="button" class="flex justify-center items-center py-2 px-4 border border-gray-700 rounded-lg hover:bg-gray-900 transition-colors duration-200">
-                            <img src="images/apple.svg" alt="Apple" class="h-5 w-5">
-                        </button>
-                        <button type="button" class="flex justify-center items-center py-2 px-4 border border-gray-700 rounded-lg hover:bg-gray-900 transition-colors duration-200">
-                            <img src="images/google.svg" alt="Google" class="h-5 w-5">
-                        </button>
-                        <button type="button" class="flex justify-center items-center py-2 px-4 border border-gray-700 rounded-lg hover:bg-gray-900 transition-colors duration-200">
-                            <img src="images/facebook.svg" alt="Facebook" class="h-5 w-5">
-                        </button>
-                    </div>
+                   
                 </form>
             </div>
         </div>
@@ -259,6 +243,24 @@ $conn->close();
         </div>
     </div>
 
-    
+    <script>
+    function checkPasswords() {
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm-password');
+        const matchMessage = document.getElementById('password-match');
+
+        if (confirmPassword.value) {
+            matchMessage.classList.remove('hidden');
+            
+            if (password.value === confirmPassword.value) {
+                matchMessage.textContent = 'Passwords match!';
+                matchMessage.classList.remove('text-red-500');
+                matchMessage.classList.add('text-green-500');
+            } 
+        } else {
+            matchMessage.classList.add('hidden');
+        }
+    }
+    </script>
 </body>
 </html>

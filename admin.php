@@ -21,8 +21,11 @@ if ($conn->connect_error) {
 
 // Fetch statistics
 $total_users = $conn->query("SELECT COUNT(*) as count FROM users")->fetch_assoc()['count'];
-$total_admins = $conn->query("SELECT COUNT(*) as count FROM admin")->fetch_assoc()['count'];
+$active_users = $conn->query("SELECT COUNT(*) as count FROM users WHERE is_active = 1")->fetch_assoc()['count'];
+$total_matches = $conn->query("SELECT COUNT(*) as count FROM matches")->fetch_assoc()['count'];
+$total_news = $conn->query("SELECT COUNT(*) as count FROM news")->fetch_assoc()['count'];
 $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT 5");
+$recent_activity = $conn->query("SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 5");
 ?>
 
 <!DOCTYPE html>
@@ -35,129 +38,130 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
     <link href="css/styles.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-    <!-- Admin Navigation -->
-    <nav class="bg-black text-white fixed w-full z-50">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="admin.php" class="text-2xl font-bold">GoalSphere Admin</a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="index.php" class="hover:text-gray-300">View Site</a>
-                    <a href="logout.php" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Logout</a>
-                </div>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="bg-gray-900 text-white w-64 flex-shrink-0 flex flex-col">
+            <div class="p-4">
+                <h2 class="text-2xl font-bold">GoalSphere</h2>
+                <p class="text-sm text-gray-400">Admin Dashboard</p>
             </div>
-        </div>
-    </nav>
-
-    <!-- Admin Content -->
-    <div class="pt-16">
-        <div class="container mx-auto px-4 py-8">
-            <!-- Dashboard Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <!-- Total Users Card -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Total Users</h3>
-                    <p class="text-3xl font-bold text-blue-600"><?php echo $total_users; ?></p>
-                </div>
-
-                <!-- Total Admins Card -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Total Admins</h3>
-                    <p class="text-3xl font-bold text-green-600"><?php echo $total_admins; ?></p>
-                </div>
-
-                <!-- Quick Actions Card -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h3>
-                    <div class="space-y-2">
-                        <button onclick="location.href='manage_users.php'" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                            Manage Users
-                        </button>
-                        <button onclick="location.href='manage_admins.php'" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                            Manage Admins
-                        </button>
+            
+            <nav class="mt-8 flex-grow">
+                <div class="px-4">
+                    <h3 class="text-xs uppercase text-gray-500 font-semibold">Management</h3>
+                    <div class="mt-4 space-y-2">
+                        <a href="admin.php" class="block px-4 py-2 rounded-lg bg-gray-800 text-white">Dashboard</a>
+                        <a href="manage_users.php" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">Users</a>
+                        
+                        <a href="admin_news.php" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">News</a>
+                        <a href="admin_jerseys.php" 
+                   class="block px-4 py-2 rounded-lg <?php echo $current_page === 'admin_jerseys.php' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800'; ?>">
+                    Manage Jerseys
+                </a>
                     </div>
                 </div>
-            </div>
+                
+                <div class="px-4 mt-8">
+                    <h3 class="text-xs uppercase text-gray-500 font-semibold">Analytics</h3>
+                    <div class="mt-4 space-y-2">
+                        <a href="#traffic" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">Traffic</a>
+                        <a href="#activity" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">Activity Logs</a>
+                    </div>
+                </div>
+            </nav>
 
-            <!-- Recent Users -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Users</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Username
-                                </th>
-                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Email
-                                </th>
-                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Joined Date
-                                </th>
-                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <?php while($user = $recent_users->fetch_assoc()): ?>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <?php echo htmlspecialchars($user['first_name']); ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <?php echo htmlspecialchars($user['email']); ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <?php echo date('M d, Y', strtotime($user['created_at'])); ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <button onclick="editUser(<?php echo $user['id']; ?>)" 
-                                            class="text-blue-600 hover:text-blue-900">
-                                        Edit
-                                    </button>
-                                    <button onclick="deleteUser(<?php echo $user['id']; ?>)" 
-                                            class="ml-4 text-red-600 hover:text-red-900">
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+            <div class="p-4 border-t border-gray-800">
+                <a href="index.php" class="block px-4 py-2 text-gray-400 hover:text-white mb-2">
+                    ← Back to Site
+                </a>
+                <a href="logout.php" class="block px-4 py-2 text-red-400 hover:text-red-300 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-gray-500 text-sm mb-2">Total Users</h3>
+                        <p class="text-3xl font-bold"><?php echo $total_users; ?></p>
+                        <p class="text-green-500 text-sm"><?php echo $active_users; ?> active</p>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-gray-500 text-sm mb-2">Matches Covered</h3>
+                        <p class="text-3xl font-bold"><?php echo $total_matches; ?></p>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-gray-500 text-sm mb-2">News Articles</h3>
+                        <p class="text-3xl font-bold"><?php echo $total_news; ?></p>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-gray-500 text-sm mb-2">Website Traffic</h3>
+                        <p class="text-3xl font-bold">1.2K</p>
+                        <p class="text-green-500 text-sm">↑ 12% this week</p>
+                    </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Users</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <?php while($user = $recent_users->fetch_assoc()): ?>
+                                <tr>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($user['first_name']); ?></td>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($user['email']); ?></td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            <?php echo $user['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
+                                            <?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Activity</h3>
+                    <div class="space-y-4">
+                        <?php while($activity = $recent_activity->fetch_assoc()): ?>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                    <?php echo htmlspecialchars($activity['type']); ?>
+                                </span>
+                                <p class="text-gray-600"><?php echo htmlspecialchars($activity['description']); ?></p>
+                            </div>
+                            <span class="text-sm text-gray-500">
+                                <?php echo date('M d, H:i', strtotime($activity['created_at'])); ?>
+                            </span>
+                        </div>
+                        <?php endwhile; ?>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-    function editUser(userId) {
-        // Implement user edit functionality
-        window.location.href = `edit_user.php?id=${userId}`;
-    }
-
-    function deleteUser(userId) {
-        if (confirm('Are you sure you want to delete this user?')) {
-            fetch('delete_user.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: userId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error deleting user');
-                }
-            });
-        }
-    }
-    </script>
 </body>
 </html>

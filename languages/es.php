@@ -4,7 +4,7 @@ return [
     'subtitle' => 'Tu destino definitivo para actualizaciones de fútbol, noticias y más.',
     'matches' => 'Partidos',
     'teams' => 'Equipos',
-    'competitions' => 'Competiciones',
+    'shop' => 'Tienda',
     'profile' => 'Perfil',
     'settings' => 'Ajustes',
     'logout' => 'Cerrar sesión',

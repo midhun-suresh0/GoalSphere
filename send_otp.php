@@ -19,12 +19,12 @@ function sendVerificationEmail($recipientEmail, $verificationCode) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'midhunsuresh487@gmail.com';
-        $mail->Password   = 'hgfa dukf dqin vuug';
+        $mail->Username   = 'goalsphere79@gmail.com';
+        $mail->Password   = 'akgn fadx wmqg dscf';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        $mail->setFrom('midhunsuresh487@gmail.com', 'GoalSphere');
+        $mail->setFrom('goalsphere79@gmail.com', 'GoalSphere');
         $mail->addAddress($recipientEmail);
         $mail->Subject = 'Your Verification Code';
         $mail->Body    = "Your verification code is: $verificationCode\n\nThis code will expire in 10 minutes.";

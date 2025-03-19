@@ -4,7 +4,7 @@ return [
     'subtitle' => 'Your ultimate destination for football updates, news, and more.',
     'matches' => 'Matches',
     'teams' => 'Teams',
-    'competitions' => 'Competitions',
+    'shop' => 'Shop',
     'profile' => 'Profile',
     'settings' => 'Settings',
     'logout' => 'Logout',

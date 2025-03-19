@@ -1,244 +1,10 @@
-// // Matches handling
-// document.addEventListener('DOMContentLoaded', async () => {
-//     const todayMatchesContainer = document.getElementById('todayMatches');
-//     const upcomingMatchesContainer = document.getElementById('upcomingMatches');
-
-//     // Football Data API Configuration
-//     const CONFIG = {
-//         API_TOKEN: 'f2cba0b9d78d4250abc2ebf831a26b58',
-//         BASE_URL: 'https://api.football-data.org/v4'
-//     };
-    
-//     const headers = new Headers({
-//         'X-Auth-Token': CONFIG.API_TOKEN
-//     });
-
-//     const requestOptions = {
-//         method: 'GET',
-//         headers: headers,
-//         mode: 'cors'
-//     };
-
-//     // Fetch matches
-//     const fetchMatches = async () => {
-//         try {
-//             // Fetch today's matches
-//             const response = await fetch(`${CONFIG.BASE_URL}/matches`, {
-//                 headers: headers
-//             });
-//             const data = await response.json();
-            
-//             if (data.matches) {
-//                 const matches = data.matches;
-//                 const todayMatches = matches.filter(match => isToday(match.utcDate));
-//                 const upcomingMatches = matches.filter(match => isFuture(match.utcDate));
-                
-//                 renderTodayMatches(todayMatches);
-//                 renderUpcomingMatches(upcomingMatches);
-//             }
-//         } catch (error) {
-//             console.error('Error fetching matches:', error);
-//             showErrorMessage(error.message);
-//         }
-//     };
-
-//     // Render today's matches
-//     const renderTodayMatches = (matches) => {
-//         todayMatchesContainer.innerHTML = matches.length ? '' : 
-//             '<div class="text-gray-400 text-center py-4">No matches scheduled for today</div>';
-
-//         matches.forEach(match => {
-//             const matchCard = createMatchCard(match);
-//             todayMatchesContainer.innerHTML += matchCard;
-//         });
-//     };
-
-//     // Render upcoming matches
-//     const renderUpcomingMatches = (matches) => {
-//         upcomingMatchesContainer.innerHTML = matches.length ? '' : 
-//             '<div class="text-gray-400 text-center py-4">No upcoming matches scheduled</div>';
-
-//         matches.forEach(match => {
-//             const matchCard = createMatchCard(match, true);
-//             upcomingMatchesContainer.innerHTML += matchCard;
-//         });
-//     };
-
-//     // Create match card HTML
-//     const createMatchCard = (match, isUpcoming = false) => {
-//         return `
-//             <div class="match-card bg-gradient-to-br from-gray-900 to-black p-6 rounded-lg">
-//                 <div class="flex justify-between items-center mb-2">
-//                     <div class="text-sm text-gray-400">${match.competition.name}</div>
-//                     <div class="text-sm ${getStatusColor(match.status)}">
-//                         ${formatMatchStatus(match.status)}
-//                     </div>
-//                 </div>
-//                 <div class="flex justify-between items-center mb-4">
-//                     <div class="team flex items-center">
-//                         <img src="${match.homeTeam.crest || 'images/default-team.png'}" 
-//                             alt="${match.homeTeam.name}" 
-//                             class="w-10 h-10 object-contain">
-//                         <span class="ml-3 font-semibold">${match.homeTeam.name}</span>
-//                     </div>
-//                     <span class="text-2xl font-bold">${match.score?.fullTime?.home || '0'}</span>
-//                 </div>
-//                 <div class="flex justify-between items-center">
-//                     <div class="team flex items-center">
-//                         <img src="${match.awayTeam.crest || 'images/default-team.png'}" 
-//                             alt="${match.awayTeam.name}" 
-//                             class="w-10 h-10 object-contain">
-//                         <span class="ml-3 font-semibold">${match.awayTeam.name}</span>
-//                     </div>
-//                     <span class="text-2xl font-bold">${match.score?.fullTime?.away || '0'}</span>
-//                 </div>
-//                 ${match.status === 'IN_PLAY' ? `
-//                     <div class="mt-4 text-sm">
-//                         <span class="text-green-500">● LIVE</span>
-//                         <span class="text-gray-400 ml-2">${match.minute || ''}'</span>
-//                     </div>
-//                 ` : ''}
-//             </div>
-//         `;
-//     };
-
-//     // Helper function to get status color
-//     const getStatusColor = (status) => {
-//         switch (status) {
-//             case 'IN_PLAY':
-//                 return 'text-green-500';
-//             case 'PAUSED':
-//                 return 'text-yellow-500';
-//             case 'FINISHED':
-//                 return 'text-gray-400';
-//             default:
-//                 return 'text-gray-400';
-//         }
-//     };
-
-//     // Helper function to format match status
-//     const formatMatchStatus = (status) => {
-//         switch (status) {
-//             case 'IN_PLAY':
-//                 return 'LIVE';
-//             case 'PAUSED':
-//                 return 'Half Time';
-//             case 'FINISHED':
-//                 return 'Full Time';
-//             case 'TIMED':
-//                 return 'Scheduled';
-//             default:
-//                 return status;
-//         }
-//     };
-
-//     // Helper function to check if date is today
-//     const isToday = (dateString) => {
-//         const today = new Date();
-//         const matchDate = new Date(dateString);
-//         return matchDate.toDateString() === today.toDateString();
-//     };
-
-//     // Helper function to check if date is in the future
-//     const isFuture = (dateString) => {
-//         const today = new Date();
-//         const matchDate = new Date(dateString);
-//         return matchDate > today;
-//     };
-
-//     // Update error message to show specific error
-//     const showErrorMessage = (message) => {
-//         const errorMessage = `
-//             <div class="bg-red-900/20 border border-red-500 text-red-100 p-4 rounded-lg">
-//                 Unable to load matches. ${message || 'Please try again later.'}
-//             </div>
-//         `;
-//         todayMatchesContainer.innerHTML = errorMessage;
-//         upcomingMatchesContainer.innerHTML = errorMessage;
-//     };
-
-//     // Calendar navigation functionality
-//     const calendarButtons = document.querySelectorAll('#matches button');
-//     calendarButtons.forEach(button => {
-//         button.addEventListener('click', () => {
-//             calendarButtons.forEach(btn => btn.classList.remove('bg-green-600'));
-//             button.classList.add('bg-green-600');
-//             // Fetch matches for selected date
-//             fetchMatches();
-//         });
-//     });
-
-//     // Add this function after your existing code
-//     const testAPIConnection = async () => {
-//         try {
-//             const response = await fetch(`${CONFIG.BASE_URL}/matches`, {
-//                 method: 'GET',
-//                 headers: headers,
-//                 mode: 'cors'
-//             });
-
-//             const data = await response.json();
-            
-//             // Log the response status and data
-//             console.log('API Response Status:', response.status);
-//             console.log('API Response:', data);
-
-//             if (!response.ok) {
-//                 console.error('API Error:', data);
-//                 return false;
-//             }
-
-//             return true;
-//         } catch (error) {
-//             console.error('API Test Error:', error);
-//             return false;
-//         }
-//     };
-
-//     // Call the test function when the page loads
-//     const isAPIWorking = await testAPIConnection();
-//     console.log('API Working:', isAPIWorking);
-    
-//     if (isAPIWorking) {
-//         fetchMatches();
-//         // Refresh matches every 5 minutes
-//         setInterval(fetchMatches, 300000);
-//     } else {
-//         showErrorMessage('API connection failed. Please check your API key.');
-//     }
-// }); 
-const url = 'https://raw.githubusercontent.com/openfootball/football.json/master/2024-25/en.1.json';
-const apiKey = 'f2cba0b9d78d4250abc2ebf831a26b58';  // Replace with your actual API key
-
-// Make the GET request
-fetch(url, {
-  method: 'GET',
-  headers: {
-    'X-Auth-Token': apiKey,  // Pass the API key in the headers
-    'x-response-control': 'minified'  // Example of another custom header
-  },
-  // No need for 'mode: no-cors' because CORS is handled by the browser.
-})
-  .then(response => {
-    if (response.ok) {
-      return response.json();  // Parse JSON if the response is okay
-    } else {
-      throw new Error('Failed to fetch data');
-    }
-  })
-  .then(data => {
-    console.log('Match Data:', data);  // Handle the API data here
-  })
-  .catch(error => {
-    console.error('Error fetching data:', error);  // Handle errors
-  });
-
 document.addEventListener('DOMContentLoaded', () => {
     const matchesContainer = document.getElementById('matchesContainer');
+    const upcomingMatchesContainer = document.getElementById('upcomingMatches');
     const loadingElement = document.getElementById('loading');
 
     const url = 'https://raw.githubusercontent.com/openfootball/football.json/master/2024-25/en.1.json';
-
+console.log(url);
     // Fetch matches data
     const fetchMatches = async () => {
         try {
@@ -248,13 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
             // Hide loading message
             loadingElement.style.display = 'none';
 
-            // Get matches data
-            const matches = data.matches;
+            // Get matches data and sort them by date (latest first)
+            const matches = data.matches.sort((a, b) => {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                return dateB - dateA; // Sort in descending order (latest first)
+            });
 
             // Clear existing content
             matchesContainer.innerHTML = '';
+            upcomingMatchesContainer.innerHTML = '';
 
-            // Loop through matches and create a card for each match
+            // Loop through sorted matches and create a card for each match
             matches.forEach(match => {
                 const card = `
                     <div class="match-card bg-gradient-to-br from-gray-900 to-black p-6 rounded-lg hover:transform hover:scale-105 transition-all duration-300">
@@ -280,8 +51,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
 
-                matchesContainer.innerHTML += card;
+                // Check if match is scheduled (no score) and add to appropriate container
+                console.log(getMatchStatus(match));
+                if (getMatchStatus(match) == 'Scheduled') {
+                    upcomingMatchesContainer.innerHTML += card;
+                } else {
+                    matchesContainer.innerHTML += card;
+                }
             });
+
+            // Show message if no matches in either section
+            if (matchesContainer.innerHTML === '') {
+                matchesContainer.innerHTML = '<div class="text-gray-400 text-center py-4">No matches today</div>';
+            }
+            if (upcomingMatchesContainer.innerHTML === '') {
+                upcomingMatchesContainer.innerHTML = '<div class="text-gray-400 text-center py-4">No upcoming matches</div>';
+            }
         } catch (error) {
             console.error('Error fetching matches:', error);
             loadingElement.innerHTML = 'Error loading matches. Please try again later.';
@@ -318,7 +103,33 @@ document.addEventListener('DOMContentLoaded', () => {
         return '<div class="text-gray-400 text-center py-2">Match not started</div>';
     };
 
-    // Add these styles to your existing styles.css
+    // Add toggle functionality
+    const resultsBtn = document.getElementById('resultsBtn');
+    const upcomingBtn = document.getElementById('upcomingBtn');
+    const resultsSection = document.getElementById('resultsSection');
+    const upcomingSection = document.getElementById('upcomingSection');
+
+    resultsBtn.addEventListener('click', () => {
+        resultsBtn.classList.add('bg-gray-800');
+        resultsBtn.classList.remove('bg-gray-700');
+        upcomingBtn.classList.add('bg-gray-700');
+        upcomingBtn.classList.remove('bg-gray-800');
+        
+        resultsSection.classList.remove('hidden');
+        upcomingSection.classList.add('hidden');
+    });
+
+    upcomingBtn.addEventListener('click', () => {
+        upcomingBtn.classList.add('bg-gray-800');
+        upcomingBtn.classList.remove('bg-gray-700');
+        resultsBtn.classList.add('bg-gray-700');
+        resultsBtn.classList.remove('bg-gray-800');
+        
+        upcomingSection.classList.remove('hidden');
+        resultsSection.classList.add('hidden');
+    });
+
+    // Add styles for the active state
     const addStyles = () => {
         const styles = `
             .match-card {
@@ -326,6 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             .match-card:hover {
                 transform: translateY(-5px);
+            }
+            .active {
+                background-color: rgb(31, 41, 55);
+                font-weight: 600;
             }
         `;
 
