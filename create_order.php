@@ -70,7 +70,7 @@ try {
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("isds", $_SESSION['user_id'], $order_number, $data['amount'], $razorpayOrder->id);
     $stmt->execute();
-    echo "Order created successfully";  
+    
     // Return success response with Razorpay order ID
     echo json_encode([
         'success' => true,
