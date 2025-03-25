@@ -10,7 +10,15 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-$cart_id = intval($data['cart_id']);
+
+if (!isset($data['cart_id'])) {
+    die(json_encode([
+        'success' => false,
+        'message' => 'Cart ID not provided'
+    ]));
+}
+
+$cart_id = $data['cart_id'];
 $user_id = $_SESSION['user_id'];
 
 // Delete the cart item
@@ -27,7 +35,19 @@ $stmt->execute();
 $count_result = $stmt->get_result();
 $cart_count = $count_result->fetch_assoc()['count'] ?? 0;
 
+// Remove item from cart
+if (isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = array_filter($_SESSION['cart'], function($item) use ($cart_id) {
+        return $item['id'] !== $cart_id;
+    });
+}
+
+// Calculate new cart count
+$cartCount = array_sum(array_column($_SESSION['cart'], 'quantity'));
+
 echo json_encode([
     'success' => $success,
-    'cartCount' => $cart_count
+    'cartCount' => $cart_count,
+    'message' => 'Item removed successfully',
+    'newCartCount' => $cartCount
 ]); 

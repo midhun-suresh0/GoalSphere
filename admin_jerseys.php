@@ -114,8 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($_POST['action'] === 'add') {
                 // Insert jersey
-                $sql = "INSERT INTO jerseys (name, description, price, team) 
-                        VALUES ('$name', '$description', $price, '$team')";
+                $sql = "INSERT INTO jerseys (name, description, price, team, status, is_available) 
+                        VALUES ('$name', '$description', $price, '$team', 'available', 1)";
                 
                 if ($conn->query($sql)) {
                     $jersey_id = $conn->insert_id;
@@ -130,24 +130,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         if (!$conn->query($img_sql)) {
                             error_log("Failed to insert image record: " . $conn->error);
-                        } else {
-                            error_log("Successfully inserted image record for: " . $image_url);
                         }
                     }
                     
-                    // Insert sizes
+                    // Insert sizes and stock
                     if (isset($_POST['sizes'])) {
+                        $total_stock = 0;
                         foreach ($_POST['sizes'] as $size) {
                             $quantity = intval($_POST["quantity_$size"]);
+                            $total_stock += $quantity;
+                            
+                            // Insert into jersey_sizes table
                             $size_sql = "INSERT INTO jersey_sizes (jersey_id, size, quantity) 
-                                       VALUES ($jersey_id, '$size', $quantity)";
-                            $conn->query($size_sql);
+                                        VALUES ($jersey_id, '$size', $quantity)";
+                            
+                            if (!$conn->query($size_sql)) {
+                                error_log("Failed to insert size record: " . $conn->error);
+                            }
                         }
+                        
+                        // Update the jersey record with total stock
+                        $update_stock_sql = "UPDATE jerseys 
+                                            SET stock = $total_stock,
+                                                status = '" . ($total_stock > 0 ? 'available' : 'sold_out') . "',
+                                                is_available = " . ($total_stock > 0 ? '1' : '0') . "
+                                            WHERE id = $jersey_id";
+                        $conn->query($update_stock_sql);
                     }
                 }
             } else {
                 // Update jersey
                 $id = intval($_POST['jersey_id']);
+                
+                // Update main jersey record
                 $sql = "UPDATE jerseys 
                         SET name='$name', description='$description', 
                             price=$price, team='$team'
@@ -165,15 +180,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                     
-                    // Update sizes
-                    $conn->query("DELETE FROM jersey_sizes WHERE jersey_id = $id");
+                    // Update sizes and stock
                     if (isset($_POST['sizes'])) {
+                        // First delete existing size records
+                        $conn->query("DELETE FROM jersey_sizes WHERE jersey_id = $id");
+                    
+                        $total_stock = 0;
                         foreach ($_POST['sizes'] as $size) {
                             $quantity = intval($_POST["quantity_$size"]);
+                            $total_stock += $quantity;
+                            
+                            // Insert new size record
                             $size_sql = "INSERT INTO jersey_sizes (jersey_id, size, quantity) 
-                                       VALUES ($id, '$size', $quantity)";
+                                        VALUES ($id, '$size', $quantity)";
                             $conn->query($size_sql);
                         }
+                        
+                        // Update the jersey record with total stock
+                        $update_stock_sql = "UPDATE jerseys 
+                                            SET stock = $total_stock,
+                                                status = '" . ($total_stock > 0 ? 'available' : 'sold_out') . "',
+                                                is_available = " . ($total_stock > 0 ? '1' : '0') . "
+                                            WHERE id = $id";
+                        $conn->query($update_stock_sql);
                     }
                 }
             }

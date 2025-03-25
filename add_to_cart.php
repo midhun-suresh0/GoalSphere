@@ -1,65 +1,117 @@
 <?php
 session_start();
-require_once 'includes/db.php';
-
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Please login first']);
-    exit;
+// Database connection
+$host = 'localhost';
+$dbname = 'goalsphere';
+$username = 'root';
+$password = '';
+
+$conn = new mysqli($host, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die(json_encode([
+        'success' => false,
+        'message' => 'Database connection failed'
+    ]));
 }
 
 // Get the POST data
 $data = json_decode(file_get_contents('php://input'), true);
 
-if (!$data) {
-    echo json_encode(['success' => false, 'message' => 'Invalid data']);
-    exit;
+if (!isset($data['jersey_id']) || !isset($data['size']) || !isset($data['quantity']) || !isset($data['price'])) {
+    die(json_encode([
+        'success' => false,
+        'message' => 'Missing required data'
+    ]));
 }
 
-$user_id = $_SESSION['user_id'];
 $jersey_id = intval($data['jersey_id']);
 $size = $conn->real_escape_string($data['size']);
 $quantity = intval($data['quantity']);
 $price = floatval($data['price']);
 
-// Check if item already exists in cart
-$check_sql = "SELECT id, quantity FROM cart 
-              WHERE user_id = ? AND jersey_id = ? AND size = ?";
-$stmt = $conn->prepare($check_sql);
-$stmt->bind_param("iis", $user_id, $jersey_id, $size);
-$stmt->execute();
-$result = $stmt->get_result();
+// Check if the requested quantity is available
+$stock_check = $conn->query("SELECT quantity FROM jersey_sizes 
+                            WHERE jersey_id = $jersey_id AND size = '$size'");
 
-if ($result->num_rows > 0) {
-    // Update existing cart item
-    $cart_item = $result->fetch_assoc();
-    $new_quantity = $cart_item['quantity'] + $quantity;
-    
-    $update_sql = "UPDATE cart SET quantity = ? WHERE id = ?";
-    $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param("ii", $new_quantity, $cart_item['id']);
-    $success = $stmt->execute();
+if ($stock_check && $row = $stock_check->fetch_assoc()) {
+    if ($row['quantity'] < $quantity) {
+        die(json_encode([
+            'success' => false,
+            'message' => 'Not enough stock available'
+        ]));
+    }
 } else {
-    // Insert new cart item
-    $insert_sql = "INSERT INTO cart (user_id, jersey_id, size, quantity, price) 
-                   VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($insert_sql);
-    $stmt->bind_param("iisid", $user_id, $jersey_id, $size, $quantity, $price);
-    $success = $stmt->execute();
+    die(json_encode([
+        'success' => false,
+        'message' => 'Size not available'
+    ]));
 }
 
-// Get updated cart count
-$count_sql = "SELECT SUM(quantity) as count FROM cart WHERE user_id = ?";
-$stmt = $conn->prepare($count_sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$count_result = $stmt->get_result();
-$cart_count = $count_result->fetch_assoc()['count'] ?? 0;
+// Get jersey details
+$jersey_query = $conn->query("SELECT name FROM jerseys WHERE id = $jersey_id");
+$jersey = $jersey_query->fetch_assoc();
 
+// Get the primary image
+$image_query = $conn->query("SELECT image_url FROM jersey_images 
+                            WHERE jersey_id = $jersey_id 
+                            ORDER BY is_primary DESC LIMIT 1");
+$image = $image_query->fetch_assoc();
+
+// Initialize cart if it doesn't exist
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
+}
+
+// Generate a unique cart item ID
+$cart_id = uniqid();
+
+// Add item to cart
+$cart_item = [
+    'id' => $cart_id,
+    'jersey_id' => $jersey_id,
+    'name' => $jersey['name'],
+    'size' => $size,
+    'quantity' => $quantity,
+    'price' => $price,
+    'image_url' => $image['image_url'] ?? 'assets/images/default-jersey.jpg'
+];
+
+// Calculate new cart count
+$cartCount = 0;
+
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+    
+    // Add to database
+    $sql = "INSERT INTO cart (user_id, jersey_id, size, quantity, price) 
+            VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iisid", $user_id, $jersey_id, $size, $quantity, $price);
+    $stmt->execute();
+    $cart_item['id'] = $stmt->insert_id;
+    
+    // Get updated cart count from database
+    $count_query = $conn->query("SELECT SUM(quantity) as count FROM cart WHERE user_id = $user_id");
+    if ($count_result = $count_query->fetch_assoc()) {
+        $cartCount = $count_result['count'] ?? 0;
+    }
+} else {
+    // Add to session cart
+    $_SESSION['cart'][] = $cart_item;
+    
+    // Calculate session cart count
+    $cartCount = array_sum(array_column($_SESSION['cart'], 'quantity'));
+}
+
+// Return success response
 echo json_encode([
-    'success' => $success,
-    'cartCount' => $cart_count,
-    'message' => $success ? 'Added to cart successfully' : 'Failed to add to cart'
+    'success' => true,
+    'message' => 'Item added to cart successfully',
+    'cartCount' => $cartCount
 ]);
+
+$conn->close();
 ?> 

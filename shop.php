@@ -338,84 +338,65 @@ require_once 'includes/language.php';
     function toggleCart() {
         const cartModal = document.getElementById('cartModal');
         if (cartModal.classList.contains('hidden')) {
-            updateCart();
+            // Fetch and display cart contents
+            fetch('get_cart.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const cartItems = document.getElementById('cartItems');
+                        cartItems.innerHTML = '';
+                        
+                        if (data.items.length === 0) {
+                            cartItems.innerHTML = '<p class="text-gray-400 text-center">Your cart is empty</p>';
+                            document.getElementById('checkoutBtn').style.display = 'none';
+                            document.getElementById('cartTotal').textContent = '₹0.00';
+                            document.getElementById('cartCount').textContent = '0';
+                        } else {
+                            let total = 0;
+                            data.items.forEach(item => {
+                                const subtotal = item.price * item.quantity;
+                                total += subtotal;
+                                
+                                cartItems.innerHTML += `
+                                    <div class="flex items-center space-x-4 bg-gray-800 p-4 rounded-lg">
+                                        <img src="${item.image_url || 'assets/images/default-jersey.jpg'}" 
+                                             alt="${item.name}" 
+                                             class="w-20 h-20 object-cover rounded">
+                                        <div class="flex-1">
+                                            <h3 class="text-white font-semibold">${item.name}</h3>
+                                            <p class="text-gray-400">Size: ${item.size}</p>
+                                            <div class="flex justify-between items-center mt-2">
+                                                <p class="text-gray-400">Quantity: ${item.quantity}</p>
+                                                <p class="text-white">₹${parseFloat(item.price).toFixed(2)}</p>
+                                            </div>
+                                            <div class="flex justify-between items-center mt-2">
+                                                <button onclick="removeFromCart('${item.id}')" 
+                                                        class="text-red-500 hover:text-red-400 text-sm">
+                                                    Remove
+                                                </button>
+                                                <p class="text-white font-bold">₹${subtotal.toFixed(2)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            document.getElementById('checkoutBtn').style.display = 'block';
+                            document.getElementById('cartTotal').textContent = `₹${total.toFixed(2)}`;
+                            document.getElementById('cartCount').textContent = data.cartCount;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching cart:', error);
+                });
+            
             cartModal.classList.remove('hidden');
             cartModal.classList.add('flex');
         } else {
             cartModal.classList.add('hidden');
             cartModal.classList.remove('flex');
         }
-    }
-
-    function updateCart() {
-        fetch('get_cart.php')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const cartItems = document.getElementById('cartItems');
-                cartItems.innerHTML = '';
-                
-                if (data.items.length === 0) {
-                    cartItems.innerHTML = '<p class="text-gray-400 text-center">Your cart is empty</p>';
-                    document.getElementById('checkoutBtn').style.display = 'none';
-                    document.getElementById('cartTotal').textContent = '₹0.00';
-                } else {
-                    let total = 0;
-                    // First add all items
-                    data.items.forEach(item => {
-                        const subtotal = item.price * item.quantity;
-                        total += subtotal;
-                        const imageUrl = item.image_url || 'assets/images/default-jersey.jpg';
-                        cartItems.innerHTML += `
-                            <div class="flex items-center space-x-4 bg-gray-800 p-4 rounded-lg">
-                                <img src="${imageUrl}" 
-                                     alt="${item.name}" 
-                                     class="w-20 h-20 object-cover rounded"
-                                     onerror="this.src='assets/images/default-jersey.jpg'">
-                                <div class="flex-1">
-                                    <h3 class="text-white font-semibold">${item.name}</h3>
-                                    <p class="text-gray-400">Size: ${item.size}</p>
-                                    <div class="flex justify-between items-center mt-1">
-                                        <p class="text-gray-400">Quantity: ${item.quantity}</p>
-                                        <p class="text-gray-400">₹${parseFloat(item.price).toFixed(2)} × ${item.quantity}</p>
-                                    </div>
-                                    <div class="flex justify-between items-center mt-2">
-                                        <button onclick="removeFromCart(${item.id})" 
-                                                class="text-red-500 hover:text-red-400 text-sm">
-                                            Remove
-                                        </button>
-                                        <div class="text-white font-bold">₹${subtotal.toFixed(2)}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    // Then add the order summary
-                    cartItems.innerHTML += `
-                        <div class="mt-6 bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-white font-bold text-lg mb-3">Order Summary</h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-gray-400">
-                                    <span>Items (${data.items.length})</span>
-                                    <span>₹${total.toFixed(2)}</span>
-                                </div>
-                                <div class="flex justify-between text-white font-bold pt-2 border-t border-gray-700">
-                                    <span>Total Amount</span>
-                                    <span>₹${total.toFixed(2)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    document.getElementById('checkoutBtn').style.display = 'block';
-                    document.getElementById('cartTotal').textContent = `₹${total.toFixed(2)}`;
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching cart:', error);
-        });
     }
 
     function removeFromCart(cartId) {

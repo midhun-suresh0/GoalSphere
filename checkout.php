@@ -412,7 +412,9 @@ $shippingCost = 0;
     }
 
     function verifyPayment(response) {
-        fetch('verify_jersey_payment.php', {
+        console.log('Verifying payment:', response); // Debug log
+        
+        fetch('verify_payment.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -423,17 +425,28 @@ $shippingCost = 0;
                 razorpay_signature: response.razorpay_signature
             })
         })
-        .then(response => response.json())
+        .then(async res => {
+            const text = await res.text();
+            console.log('Server response:', text); // Debug log
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                throw new Error('Invalid server response: ' + text);
+            }
+        })
         .then(data => {
             if (data.success) {
-                window.location.href = 'order_success.php?order_id=' + response.razorpay_order_id;
+                alert('Payment successful!');
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
             } else {
-                alert('Payment verification failed. Please contact support.');
+                throw new Error(data.message || 'Payment verification failed');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Error verifying payment');
+            console.error('Verification error:', error);
+            alert('Payment verification failed. Please try again or contact support.');
         });
     }
     </script>

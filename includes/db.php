@@ -1,16 +1,11 @@
 <?php
 $host = 'localhost';
-$dbname = 'goalsphere';
 $username = 'root';
 $password = '';
+$database = 'goalsphere';
 
-try {
-    $conn = new mysqli($host, $username, $password, $dbname);
-    
-    if ($conn->connect_error) {
-        throw new Exception("Connection failed: " . $conn->connect_error);
-    }
-} catch (Exception $e) {
-    error_log("Database connection error: " . $e->getMessage());
-    // You might want to handle the error more gracefully in production
+$conn = new mysqli($host, $username, $password, $database);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 } 

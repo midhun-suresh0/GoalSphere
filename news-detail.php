@@ -49,20 +49,20 @@ if (!$news) {
             <?php if($news['image_url']): ?>
             <img src="<?php echo htmlspecialchars($news['image_url']); ?>" 
                  alt="<?php echo htmlspecialchars($news['title']); ?>"
-                 class="w-full h-96 object-cover">
+                         class="w-full h-96 object-cover">
             <?php endif; ?>
-            
-            <div class="p-8">
-                <h1 class="text-4xl font-bold mb-4">
+                    
+                    <div class="p-8">
+                        <h1 class="text-4xl font-bold mb-4">
                     <?php echo htmlspecialchars($news['title']); ?>
-                </h1>
-                
+                        </h1>
+                        
                 <div class="flex items-center text-gray-500 mb-6">
                     <span class="mr-4">By <?php echo htmlspecialchars($news['author']); ?></span>
                     <span><?php echo date('F d, Y', strtotime($news['created_at'])); ?></span>
-                </div>
-                
-                <div class="prose max-w-none">
+                        </div>
+                        
+                        <div class="prose max-w-none">
                     <?php echo nl2br(htmlspecialchars($news['content'])); ?>
                 </div>
             </div>

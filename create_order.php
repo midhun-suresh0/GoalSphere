@@ -47,7 +47,7 @@ try {
     $order_number = 'GS' . time() . rand(100, 999);
     
     // Initialize Razorpay API
-    $api = new Api('rzp_test_PXCkaH2uhlAUBp', 'Yr0t8sy7WRicOGd28jjoW9Xq');
+    $api = new Api('rzp_test_PXCkaH2uhlAUBp', 'Yr0t8sy7WRicOGd28jjoW9Xq'); // Replace with your actual secret key
 
     // Create order data
     $orderData = [
