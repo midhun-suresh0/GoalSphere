@@ -10,7 +10,7 @@ require_once 'includes/db.php';
                 <a href="index.php" class="text-2xl font-bold">GoalSphere</a>
                 <div class="hidden md:flex space-x-8">
                     <a href="matches.php" class="hover:text-gray-300"><?php echo __('matches'); ?></a>
-                    <a href="teams.php" class="hover:text-gray-300"><?php echo __('teams'); ?></a>
+                    <a href="gamezone.php" class="hover:text-gray-300"><?php echo __('Game Zone'); ?></a>
                     <a href="shop.php" class="hover:text-gray-300"><?php echo __('shop'); ?></a>
                 </div>
             </div>

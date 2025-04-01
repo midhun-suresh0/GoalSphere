@@ -19,6 +19,38 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Add these at the top with other includes
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer-master/src/Exception.php';
+require 'PHPMailer-master/src/PHPMailer.php';
+require 'PHPMailer-master/src/SMTP.php';
+
+function sendDeactivationEmail($userEmail) {
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'goalsphere79@gmail.com';
+        $mail->Password   = 'akgn fadx wmqg dscf';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        $mail->setFrom('goalsphere79@gmail.com', 'GoalSphere');
+        $mail->addAddress($userEmail);
+        $mail->Subject = 'Account Status Update';
+        $mail->Body    = "Your GoalSphere account has been deactivated by an administrator. Please contact support if you believe this is an error.";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Email sending failed: " . $mail->ErrorInfo);
+        return false;
+    }
+}
+
 // Handle search
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $search_condition = $search ? "WHERE first_name LIKE '%$search%' OR email LIKE '%$search%'" : '';
@@ -27,6 +59,14 @@ $search_condition = $search ? "WHERE first_name LIKE '%$search%' OR email LIKE '
 if (isset($_POST['toggle_status'])) {
     $user_id = $_POST['user_id'];
     $new_status = $_POST['new_status'];
+    
+    // Get user email before updating status
+    $email_sql = "SELECT email FROM users WHERE id = ?";
+    $stmt = $conn->prepare($email_sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user_email = $result->fetch_assoc()['email'];
     
     $update_sql = "UPDATE users SET is_active = ? WHERE id = ?";
     $stmt = $conn->prepare($update_sql);
@@ -37,6 +77,11 @@ if (isset($_POST['toggle_status'])) {
         $action = $new_status ? 'activated' : 'deactivated';
         $log_sql = "INSERT INTO activity_logs (type, description) VALUES ('USER_STATUS', 'User ID: $user_id was $action')";
         $conn->query($log_sql);
+        
+        // Send email if user is being deactivated
+        if ($new_status == 0) {
+            sendDeactivationEmail($user_email);
+        }
     }
 }
 

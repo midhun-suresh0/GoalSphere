@@ -9,13 +9,30 @@
             <h3 class="text-xs uppercase text-gray-500 font-semibold">Management</h3>
             <div class="mt-4 space-y-2">
                 <a href="admin.php" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">Dashboard</a>
-                <a href="manage_users.php" class="block px-4 py-2 rounded-lg bg-gray-800 text-white">Users</a>
-                
+                <a href="manage_users.php" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">Users</a>
                 <a href="admin_news.php" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">News</a>
-                
                 <a href="admin_jerseys.php" 
                    class="block px-4 py-2 rounded-lg <?php echo $current_page === 'admin_jerseys.php' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800'; ?>">
                     Manage Jerseys
+                </a>
+            </div>
+        </div>
+        
+        <div class="px-4 mt-4">
+            <h3 class="text-xs uppercase text-gray-500 font-semibold">Game Zone</h3>
+            <div class="mt-2 space-y-2">
+                <a href="admin_quiz.php" class="flex items-center px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-800">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Quiz Management</span>
+                </a>
+                
+                <a href="admin_players.php" class="flex items-center px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-800">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>Guess Player Management</span>
                 </a>
             </div>
         </div>

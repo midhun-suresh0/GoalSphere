@@ -7,53 +7,67 @@ require_once 'includes/language.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jersey Shop - GoalSphere</title>
+    <title>Shop - GoalSphere</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="css/styles.css" rel="stylesheet">
 </head>
-<body class="bg-black min-h-screen">
-    <?php include 'includes/header.php'; ?>
+<body class="bg-black min-h-screen flex flex-col">
+    <?php include 'includes/shop_header.php'; ?>
 
-    <!-- Shop Header -->
-    <div class="bg-gradient-to-r from-blue-900 to-black py-12">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col items-center text-center">
-                <h1 class="text-4xl font-bold text-white mb-4">Jersey Shop</h1>
-                <p class="text-gray-300 max-w-2xl">
-                    Get your favorite team's jersey. Official merchandise with worldwide shipping.
-                </p>
+    <!-- Hero Banner -->
+    <div class="relative overflow-hidden">
+        <div class="absolute inset-0">
+            <img src="images/shirt.jpg" alt="Stadium" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+        </div>
+        <div class="container mx-auto px-4 py-16 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Premium Football Jerseys</h1>
+                <p class="text-xl text-blue-200 mb-8">Authentic jerseys from your favorite teams around the world</p>
+                <div class="flex justify-center space-x-4">
+                    <div class="bg-white bg-opacity-20 backdrop-blur-sm px-6 py-3 rounded-full text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Official Merchandise</span>
+                    </div>
+                    <div class="bg-white bg-opacity-20 backdrop-blur-sm px-6 py-3 rounded-full text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Premium Quality</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Shop Content -->
     <div class="container mx-auto px-4 py-12">
-        <!-- Filters -->
-        <div class="flex flex-wrap gap-4 mb-8">
-            <select class="bg-gray-800 text-white px-4 py-2 rounded-lg">
-                <option value="">All Teams</option>
-                <option value="manchester-united">Manchester United</option>
-                <option value="real-madrid">Real Madrid</option>
-                <option value="barcelona">Barcelona</option>
-                <!-- Add more teams -->
-            </select>
-
-            <select class="bg-gray-800 text-white px-4 py-2 rounded-lg">
-                <option value="">All Sizes</option>
-                <option value="S">Small</option>
-                <option value="M">Medium</option>
-                <option value="L">Large</option>
-                <option value="XL">Extra Large</option>
-            </select>
-
-            <select class="bg-gray-800 text-white px-4 py-2 rounded-lg">
-                <option value="">Price Range</option>
-                <option value="0-50">$0 - $50</option>
-                <option value="51-100">$51 - $100</option>
-                <option value="101+">$101+</option>
-            </select>
+        <!-- Search Bar and Orders Button -->
+        <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
+            <!-- Search Bar -->
+            <div class="w-full md:w-1/2">
+                <form action="shop.php" method="GET" class="flex">
+                    <input type="text" name="search" value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" 
+                           placeholder="Search jerseys..." 
+                           class="w-full bg-gray-800 text-white px-4 py-3 rounded-l-lg focus:outline-none">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-r-lg hover:bg-blue-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Orders Button -->
+            <a href="orders.php" class="flex items-center justify-center bg-gray-800 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <span>My Orders</span>
+            </a>
         </div>
-
+        
         <!-- Products Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <?php
@@ -69,26 +83,32 @@ require_once 'includes/language.php';
                 die("Connection failed: " . $conn->connect_error);
             }
 
-            // Fetch jerseys from database
+            // Fetch jerseys from database with search
+            $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+            
             $sql = "SELECT j.*, 
-                    GROUP_CONCAT(DISTINCT CONCAT(js.size, ':', js.quantity)) as sizes,
-                    MIN(ji.image_url) as primary_image,
-                    SUM(js.quantity) as total_quantity
+                    GROUP_CONCAT(DISTINCT CASE WHEN js.quantity > 0 THEN js.size END) as available_sizes,
+                    MIN(ji.image_url) as primary_image
                     FROM jerseys j 
                     LEFT JOIN jersey_sizes js ON j.id = js.jersey_id 
                     LEFT JOIN jersey_images ji ON j.id = ji.jersey_id
-                    GROUP BY j.id 
-                    HAVING total_quantity > 0
-                    ORDER BY j.created_at DESC";
+                    WHERE j.status = 'available'";
+            
+            // Add search condition if search parameter exists
+            if (!empty($search)) {
+                $sql .= " AND (j.name LIKE '%$search%' OR j.description LIKE '%$search%')";
+            }
+            
+            $sql .= " GROUP BY j.id ORDER BY j.created_at DESC";
 
             $result = $conn->query($sql);
 
             if ($result && $result->num_rows > 0) {
                 while ($jersey = $result->fetch_assoc()) {
                     ?>
-                    <div class="bg-gray-900 rounded-lg overflow-hidden cursor-pointer" 
+                    <div class="bg-gray-900 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-blue-900/30 transition-all duration-300" 
                          onclick="showJerseyDetails(<?php echo htmlspecialchars(json_encode($jersey)); ?>)">
-                        <div class="jersey-image">
+                        <div class="jersey-image relative">
                             <?php
                             $images_sql = "SELECT image_url FROM jersey_images 
                                            WHERE jersey_id = {$jersey['id']} 
@@ -99,27 +119,34 @@ require_once 'includes/language.php';
                                 $image = $images_result->fetch_assoc();
                                 echo '<img src="' . htmlspecialchars($image['image_url']) . '" 
                                            alt="Jersey" 
-                                           class="w-full h-64 object-cover">';
+                                           class="w-full h-64 object-cover transition-transform duration-300 hover:scale-105">';
                             } else {
                                 echo '<img src="assets/images/default-jersey.jpg" 
                                            alt="No image available" 
-                                           class="w-full h-64 object-cover">';
+                                           class="w-full h-64 object-cover transition-transform duration-300 hover:scale-105">';
                             }
                             ?>
+                            <div class="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                                New
+                            </div>
                         </div>
                         <div class="p-4 space-y-2">
-                            <h3 class="text-white font-semibold text-center truncate">
-                                <?php echo htmlspecialchars($jersey['name']); ?>
-                            </h3>
-                            <div class="text-xl font-bold text-white text-center">
-                                ₹<?php echo number_format($jersey['price'], 2); ?>
+                            <h3 class="text-white font-semibold text-lg"><?php echo htmlspecialchars($jersey['name']); ?></h3>
+                            <p class="text-gray-400 text-sm line-clamp-2"><?php echo htmlspecialchars($jersey['description']); ?></p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-white font-bold">₹<?php echo number_format($jersey['price'], 2); ?></span>
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">View</button>
                             </div>
                         </div>
                     </div>
                     <?php
                 }
             } else {
-                echo '<p class="text-gray-400 col-span-4 text-center">No jerseys available at the moment.</p>';
+                if (!empty($search)) {
+                    echo '<p class="text-gray-400 col-span-4 text-center">No jerseys found matching "' . htmlspecialchars($search) . '". Try a different search term.</p>';
+                } else {
+                    echo '<p class="text-gray-400 col-span-4 text-center">No jerseys available at the moment.</p>';
+                }
             }
 
             $conn->close();
@@ -127,98 +154,192 @@ require_once 'includes/language.php';
         </div>
     </div>
 
-    <?php include 'includes/footer.php'; ?>
-
-    <!-- Add this modal HTML before the closing body tag -->
-    <div id="jerseyModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
-        <div class="bg-gray-900 p-6 rounded-lg max-w-2xl w-full mx-4">
-            <div class="flex justify-between items-start mb-4">
-                <h2 class="text-2xl font-bold text-white" id="modalTitle"></h2>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div id="modalImage" class="w-full"></div>
-                <div class="space-y-4">
-                    <p id="modalDescription" class="text-gray-400"></p>
-                    <div>
-                        <h3 class="text-white font-semibold mb-2">Select Size:</h3>
-                        <div id="modalSizes" class="flex flex-wrap gap-2"></div>
-                    </div>
-                    <div id="quantitySection" class="hidden">
-                        <h3 class="text-white font-semibold mb-2">Quantity:</h3>
-                        <div class="flex items-center gap-2">
-                            <button onclick="updateQuantity(-1)" class="px-3 py-1 bg-gray-800 text-white rounded-lg">-</button>
-                            <input type="number" id="quantityInput" value="1" min="1" 
-                                   class="w-20 px-3 py-1 bg-gray-800 text-white rounded-lg text-center" readonly>
-                            <button onclick="updateQuantity(1)" class="px-3 py-1 bg-gray-800 text-white rounded-lg">+</button>
-                            <span id="availableQuantity" class="text-gray-400 ml-2"></span>
+    <!-- Jersey Details Modal -->
+    <div id="jerseyModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden">
+        <div class="container mx-auto px-4 h-full flex items-center justify-center">
+            <div class="bg-gray-900 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-end mb-4">
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <!-- Main Image Slideshow -->
+                        <div id="modalImageSlideshow" class="rounded-lg overflow-hidden relative">
+                            <div id="modalMainImage" class="w-full h-80 bg-gray-800 flex items-center justify-center">
+                                <!-- Main image will be displayed here -->
+                            </div>
+                            
+                            <!-- Navigation Arrows -->
+                            <button id="prevImageBtn" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <button id="nextImageBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                            
+                            <!-- Image Counter -->
+                            <div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+                                <span id="currentImageIndex">1</span>/<span id="totalImages">1</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Thumbnail Gallery -->
+                        <div id="imageThumbnails" class="flex space-x-2 overflow-x-auto py-2">
+                            <!-- Thumbnails will be added here -->
                         </div>
                     </div>
-                    <div class="text-2xl font-bold text-white" id="modalPrice"></div>
-                    <button id="modalAddToCart" onclick="addToCart()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors opacity-50 cursor-not-allowed">
-                        Add to Cart
+                    
+                    <div class="space-y-4">
+                        <h2 id="modalTitle" class="text-2xl font-bold text-white"></h2>
+                        <p id="modalPrice" class="text-xl font-bold text-white"></p>
+                        <p id="modalDescription" class="text-gray-400"></p>
+                        
+                        <div>
+                            <h3 class="text-white font-semibold mb-2">Select Size:</h3>
+                            <div id="modalSizes" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        
+                        <div id="quantitySection" class="hidden">
+                            <h3 class="text-white font-semibold mb-2">Quantity:</h3>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="updateQuantity(-1)" class="bg-gray-800 text-white w-8 h-8 flex items-center justify-center rounded-full">-</button>
+                                <input type="number" id="quantityInput" min="1" value="1" class="bg-gray-800 text-white w-16 text-center rounded px-2 py-1">
+                                <button onclick="updateQuantity(1)" class="bg-gray-800 text-white w-8 h-8 flex items-center justify-center rounded-full">+</button>
+                            </div>
+                        </div>
+                        
+                        <button id="modalAddToCart" onclick="addToCart()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors opacity-50 cursor-not-allowed">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cart Modal -->
+    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden">
+        <div class="container mx-auto px-4 h-full flex items-center justify-center">
+            <div class="bg-gray-900 rounded-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white">Your Cart</h2>
+                    <button onclick="toggleCart()" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
+                </div>
+                
+                <div id="cartItems" class="space-y-4 mb-6">
+                    <!-- Cart items will be loaded here -->
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-gray-700">
+                    <div class="flex justify-between text-white mb-4">
+                        <span class="text-xl">Total:</span>
+                        <span class="text-xl font-bold" id="cartTotal">₹0.00</span>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button onclick="toggleCart()" 
+                                class="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                            Keep Shopping
+                        </button>
+                        <a href="checkout.php" id="checkoutBtn" 
+                           class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-center">
+                            Checkout
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add this before closing body tag -->
-    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-gray-900 p-6 rounded-lg max-w-2xl w-full mx-4">
-            <div class="flex justify-between items-start mb-4">
-                <h2 class="text-2xl font-bold text-white">Your Cart</h2>
-                <button onclick="toggleCart()" class="text-gray-400 hover:text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+    <!-- Footer -->
+    <footer class="bg-gray-900 mt-auto">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">GoalSphere</h3>
+                    <p class="text-gray-400">Your one-stop destination for premium football jerseys and merchandise.</p>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.php" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="shop.php" class="text-gray-400 hover:text-white">Shop</a></li>
+                        <li><a href="teams.php" class="text-gray-400 hover:text-white">Teams</a></li>
+                        <li><a href="matches.php" class="text-gray-400 hover:text-white">Matches</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">Customer Service</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Shipping Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Returns & Refunds</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm5.5 5.5h-2.775c-.144 0-.25.11-.25.25v1.5c0 .14.11.25.25.25h2.775c.14 0 .25-.11.25-.25v-1.5c0-.14-.11-.25-.25-.25zM12 7.5c-2.48 0-4.5 2.02-4.5 4.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5-2.02-4.5-4.5-4.5zm0 7.5c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div id="cartItems" class="space-y-4 max-h-96 overflow-y-auto"></div>
-            <div class="mt-4 pt-4 border-t border-gray-700">
-                <div class="flex justify-between text-white mb-4">
-                    <span class="text-xl">Total:</span>
-                    <span class="text-xl font-bold" id="cartTotal">₹0.00</span>
-                </div>
-                <div class="flex space-x-4">
-                    <button onclick="keepShopping()" 
-                            class="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                        Keep Shopping
-                    </button>
-                    <button id="checkoutBtn" 
-                            onclick="proceedToCheckout()" 
-                            class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        Proceed to Checkout
-                    </button>
-                </div>
+            <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400">
+                <p>&copy; <?php echo date('Y'); ?> GoalSphere. All rights reserved.</p>
             </div>
         </div>
-    </div>
-
+    </footer>
+    
     <script>
+    let currentJersey = null;
     let selectedSize = null;
     let maxQuantity = 0;
-    let currentJersey = null;
     let basePrice = 0;
-
+    let jerseyImages = [];
+    let currentImageIndex = 0;
+    
     function showJerseyDetails(jersey) {
         currentJersey = jersey;
         selectedSize = null;
         maxQuantity = 0;
         basePrice = parseFloat(jersey.price);
+        currentImageIndex = 0;
         
         const modal = document.getElementById('jerseyModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalDescription = document.getElementById('modalDescription');
         const modalPrice = document.getElementById('modalPrice');
+        const modalMainImage = document.getElementById('modalMainImage');
         const modalSizes = document.getElementById('modalSizes');
-        const modalImage = document.getElementById('modalImage');
         const modalAddToCart = document.getElementById('modalAddToCart');
         const quantitySection = document.getElementById('quantitySection');
+        const imageThumbnails = document.getElementById('imageThumbnails');
         
         document.getElementById('quantityInput').value = 1;
         quantitySection.classList.add('hidden');
@@ -228,74 +349,147 @@ require_once 'includes/language.php';
         modalDescription.textContent = jersey.description;
         modalPrice.textContent = `₹${parseFloat(jersey.price).toFixed(2)}`;
         
-        modalImage.innerHTML = `<img src="${jersey.primary_image}" class="w-full rounded-lg">`;
+        // Fetch all images for this jersey
+        fetch(`get_jersey_images.php?jersey_id=${jersey.id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    jerseyImages = data.images;
+                    
+                    // Update image counter
+                    document.getElementById('currentImageIndex').textContent = '1';
+                    document.getElementById('totalImages').textContent = jerseyImages.length;
+                    
+                    // Display the first image
+                    if (jerseyImages.length > 0) {
+                        modalMainImage.innerHTML = `<img src="${jerseyImages[0].image_url}" class="w-full h-full object-contain">`;
+                    } else {
+                        modalMainImage.innerHTML = `<div class="text-gray-500">No images available</div>`;
+                    }
+                    
+                    // Create thumbnails
+                    imageThumbnails.innerHTML = '';
+                    jerseyImages.forEach((image, index) => {
+                        const thumbnail = document.createElement('div');
+                        thumbnail.className = `w-16 h-16 rounded overflow-hidden cursor-pointer ${index === 0 ? 'ring-2 ring-blue-500' : ''}`;
+                        thumbnail.innerHTML = `<img src="${image.image_url}" class="w-full h-full object-cover">`;
+                        thumbnail.onclick = () => showImage(index);
+                        imageThumbnails.appendChild(thumbnail);
+                    });
+                    
+                    // Show/hide navigation buttons based on image count
+                    document.getElementById('prevImageBtn').style.display = jerseyImages.length > 1 ? 'block' : 'none';
+                    document.getElementById('nextImageBtn').style.display = jerseyImages.length > 1 ? 'block' : 'none';
+                }
+            });
         
+        // Update size buttons
         modalSizes.innerHTML = '';
-        if (jersey.sizes) {
-            const sizes = jersey.sizes.split(',');
-            sizes.forEach(sizeInfo => {
-                const [size, quantity] = sizeInfo.split(':');
-                const qtyAvailable = parseInt(quantity);
-                if (qtyAvailable > 0) {
+        if (jersey.available_sizes) {
+            const sizes = jersey.available_sizes.split(',');
+            sizes.forEach(size => {
+                if (size) {  // Only create button if size exists
                     const sizeBtn = document.createElement('button');
                     sizeBtn.className = 'px-4 py-2 border border-gray-600 rounded-lg text-white hover:bg-gray-700 transition-colors';
-                    sizeBtn.innerHTML = `${size}<br><span class="text-sm text-gray-400">(${qtyAvailable} left)</span>`;
-                    sizeBtn.onclick = () => selectSize(size, qtyAvailable);
+                    sizeBtn.textContent = size;
+                    sizeBtn.onclick = () => selectSize(size);
                     modalSizes.appendChild(sizeBtn);
                 }
             });
         }
 
         modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-
-    function selectSize(size, quantity) {
-        selectedSize = size;
-        maxQuantity = quantity;
         
-        const sizeBtns = document.querySelectorAll('#modalSizes button');
-        sizeBtns.forEach(btn => {
-            if (btn.textContent.startsWith(size)) {
-                btn.classList.add('bg-blue-600', 'border-blue-600');
+        // Set up event listeners for image navigation
+        document.getElementById('prevImageBtn').onclick = prevImage;
+        document.getElementById('nextImageBtn').onclick = nextImage;
+    }
+    
+    function showImage(index) {
+        if (index < 0 || index >= jerseyImages.length) return;
+        
+        currentImageIndex = index;
+        const modalMainImage = document.getElementById('modalMainImage');
+        modalMainImage.innerHTML = `<img src="${jerseyImages[index].image_url}" class="w-full h-full object-contain">`;
+        
+        // Update counter
+        document.getElementById('currentImageIndex').textContent = (index + 1).toString();
+        
+        // Update thumbnail selection
+        const thumbnails = document.querySelectorAll('#imageThumbnails > div');
+        thumbnails.forEach((thumb, i) => {
+            if (i === index) {
+                thumb.classList.add('ring-2', 'ring-blue-500');
             } else {
-                btn.classList.remove('bg-blue-600', 'border-blue-600');
+                thumb.classList.remove('ring-2', 'ring-blue-500');
             }
         });
-        
-        quantitySection = document.getElementById('quantitySection');
-        quantitySection.classList.remove('hidden');
-        
-        document.getElementById('quantityInput').value = 1;
-        document.getElementById('availableQuantity').textContent = `${maxQuantity} available`;
-        
-        const modalPrice = document.getElementById('modalPrice');
-        modalPrice.textContent = `₹${basePrice.toFixed(2)}`;
-        
-        const addToCartBtn = document.getElementById('modalAddToCart');
-        addToCartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
     }
-
+    
+    function nextImage() {
+        showImage((currentImageIndex + 1) % jerseyImages.length);
+    }
+    
+    function prevImage() {
+        showImage((currentImageIndex - 1 + jerseyImages.length) % jerseyImages.length);
+    }
+    
+    function selectSize(size) {
+        selectedSize = size;
+        
+        // Get the quantity for this size
+        fetch(`get_size_quantity.php?jersey_id=${currentJersey.id}&size=${size}`)
+            .then(response => response.json())
+            .then(data => {
+                maxQuantity = data.quantity;
+                
+                const sizeBtns = document.querySelectorAll('#modalSizes button');
+                sizeBtns.forEach(btn => {
+                    if (btn.textContent === size) {
+                        btn.classList.add('bg-blue-600', 'border-blue-600');
+                    } else {
+                        btn.classList.remove('bg-blue-600', 'border-blue-600');
+                    }
+                });
+                
+                const quantitySection = document.getElementById('quantitySection');
+                quantitySection.classList.remove('hidden');
+                
+                document.getElementById('quantityInput').value = 1;
+                
+                const modalPrice = document.getElementById('modalPrice');
+                modalPrice.textContent = `₹${basePrice.toFixed(2)}`;
+                
+                const addToCartBtn = document.getElementById('modalAddToCart');
+                addToCartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+    }
+    
     function updateQuantity(change) {
         const input = document.getElementById('quantityInput');
-        let newValue = parseInt(input.value) + change;
+        let quantity = parseInt(input.value) + change;
         
-        newValue = Math.max(1, Math.min(newValue, maxQuantity));
-        input.value = newValue;
-        
-        const modalPrice = document.getElementById('modalPrice');
-        const totalPrice = basePrice * newValue;
-        modalPrice.textContent = `₹${totalPrice.toFixed(2)}`;
+        // Ensure quantity is within valid range
+        quantity = Math.max(1, Math.min(quantity, maxQuantity));
+        input.value = quantity;
     }
-
+    
+    function closeModal() {
+        document.getElementById('jerseyModal').classList.add('hidden');
+    }
+    
     function addToCart() {
-        if (!selectedSize || !currentJersey) {
-            alert('Please select a size first');
+        if (!selectedSize) {
+            alert('Please select a size');
             return;
         }
 
         const quantity = parseInt(document.getElementById('quantityInput').value);
-        
+        if (quantity < 1 || quantity > maxQuantity) {
+            alert(`Please select a quantity between 1 and ${maxQuantity}`);
+            return;
+        }
+
         fetch('add_to_cart.php', {
             method: 'POST',
             headers: {
@@ -328,13 +522,7 @@ require_once 'includes/language.php';
             alert('Error adding to cart');
         });
     }
-
-    function closeModal() {
-        const modal = document.getElementById('jerseyModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-
+    
     function toggleCart() {
         const cartModal = document.getElementById('cartModal');
         if (cartModal.classList.contains('hidden')) {
@@ -350,7 +538,6 @@ require_once 'includes/language.php';
                             cartItems.innerHTML = '<p class="text-gray-400 text-center">Your cart is empty</p>';
                             document.getElementById('checkoutBtn').style.display = 'none';
                             document.getElementById('cartTotal').textContent = '₹0.00';
-                            document.getElementById('cartCount').textContent = '0';
                         } else {
                             let total = 0;
                             data.items.forEach(item => {
@@ -383,7 +570,6 @@ require_once 'includes/language.php';
                             
                             document.getElementById('checkoutBtn').style.display = 'block';
                             document.getElementById('cartTotal').textContent = `₹${total.toFixed(2)}`;
-                            document.getElementById('cartCount').textContent = data.cartCount;
                         }
                     }
                 })
@@ -392,13 +578,11 @@ require_once 'includes/language.php';
                 });
             
             cartModal.classList.remove('hidden');
-            cartModal.classList.add('flex');
         } else {
             cartModal.classList.add('hidden');
-            cartModal.classList.remove('flex');
         }
     }
-
+    
     function removeFromCart(cartId) {
         if (confirm('Are you sure you want to remove this item?')) {
             fetch('remove_from_cart.php', {
@@ -411,72 +595,35 @@ require_once 'includes/language.php';
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Update cart count and refresh cart display
                     document.getElementById('cartCount').textContent = data.cartCount;
-                    updateCart();
+                    toggleCart(); // Refresh cart contents
                 }
             });
         }
     }
-
-    function keepShopping() {
+    
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        const jerseyModal = document.getElementById('jerseyModal');
         const cartModal = document.getElementById('cartModal');
-        cartModal.classList.add('hidden');
-        cartModal.classList.remove('flex');
-    }
-
-    function proceedToCheckout() {
-        // Check if user is logged in (you can modify this based on your session handling)
-        <?php if(!isset($_SESSION['user_id'])): ?>
-            window.location.href = 'signin.php';
-            return;
-        <?php endif; ?>
         
-        // Redirect to checkout page
-        window.location.href = 'checkout.php';
-    }
-
-    document.getElementById('jerseyModal').addEventListener('click', function(e) {
-        if (e.target === this) {
+        if (event.target === jerseyModal) {
             closeModal();
+        }
+        
+        if (event.target === cartModal) {
+            toggleCart();
+        }
+    });
+    
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+            document.getElementById('cartModal').classList.add('hidden');
         }
     });
     </script>
-
-    <style>
-        .jersey-gallery {
-            position: relative;
-        }
-
-        .main-image {
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-
-        .main-image img {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-        }
-
-        .thumbnail-gallery {
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding: 0.5rem 0;
-        }
-
-        .thumbnail-gallery img {
-            width: 4rem;
-            height: 4rem;
-            object-fit: cover;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .thumbnail-gallery img:hover {
-            border-color: #3b82f6;
-        }
-    </style>
 </body>
 </html>

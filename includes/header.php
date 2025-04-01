@@ -12,38 +12,13 @@ require_once 'includes/db.php'; // Add this line to include database connection
                 <a href="index.php" class="text-2xl font-bold">GoalSphere</a>
                 <div class="hidden md:flex space-x-8">
                     <a href="matches.php" class="hover:text-gray-300"><?php echo __('matches'); ?></a>
-                    <a href="teams.php" class="hover:text-gray-300"><?php echo __('teams'); ?></a>
+                    <a href="gamezone.php" class="hover:text-gray-300"><?php echo __('Game Zone'); ?></a>
                     <a href="shop.php" class="hover:text-gray-300"><?php echo __('shop'); ?></a>
                 </div>
             </div>
 
             <!-- Right Actions -->
             <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <button onclick="toggleCart()" class="flex items-center space-x-2 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                        
-                        <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs px-2 py-1 min-w-[20px] text-center">
-                            <?php 
-                            $cart_count = 0;
-                            if (isset($_SESSION['user_id'])) {
-                                // Get count from database for logged-in users
-                                $user_id = $_SESSION['user_id'];
-                                $count_query = $conn->query("SELECT SUM(quantity) as count FROM cart WHERE user_id = $user_id");
-                                if ($count_result = $count_query->fetch_assoc()) {
-                                    $cart_count = $count_result['count'] ?? 0;
-                                }
-                            } else if (isset($_SESSION['cart'])) {
-                                // Get count from session for non-logged-in users
-                                $cart_count = array_sum(array_column($_SESSION['cart'], 'quantity'));
-                            }
-                            echo $cart_count;
-                            ?>
-                        </span>
-                    </button>
-                </div>
                 <div class="relative">
                 <?php if(isset($_SESSION['email'])){ ?>
                     <a href="settings.php" class="p-2 hover:bg-gray-800 rounded-full inline-flex items-center">

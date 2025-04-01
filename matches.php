@@ -18,8 +18,36 @@ require_once 'includes/language.php';
     <!-- Include header -->
     <?php include 'includes/matches_header.php'; ?>
 
+    <!-- Hero Banner -->
+    <div class="relative overflow-hidden">
+        <div class="absolute inset-0">
+            <img src="images/first.jpg" alt="Stadium" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+        </div>
+        <div class="container mx-auto px-4 py-16 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-4"> Football Matches</h1>
+                <p class="text-xl text-blue-200 mb-8">Stay updated with the latest scores and upcoming fixtures</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="bg-white bg-opacity-20 backdrop-blur-sm px-6 py-3 rounded-full text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Real-time Updates</span>
+                    </div>
+                    <div class="bg-white bg-opacity-20 backdrop-blur-sm px-6 py-3 rounded-full text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>All Major Leagues</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
-    <div class="pt-16">
+    <div class="pt-8">
         <!-- Match Scores Section -->
         <section class="py-12 text-white min-h-screen">
             <div class="container mx-auto px-4">
