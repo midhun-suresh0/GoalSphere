@@ -25,7 +25,17 @@ $active_users = $conn->query("SELECT COUNT(*) as count FROM users WHERE is_activ
 $total_matches = $conn->query("SELECT COUNT(*) as count FROM matches")->fetch_assoc()['count'];
 $total_news = $conn->query("SELECT COUNT(*) as count FROM news")->fetch_assoc()['count'];
 $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT 5");
-$recent_activity = $conn->query("SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 5");
+
+// Use the id column instead of user_id for the join
+$recent_activity = $conn->query("SELECT a.*, u.first_name 
+                                FROM activity_logs a 
+                                LEFT JOIN users u ON a.id = u.id 
+                                ORDER BY a.created_at DESC LIMIT 5");
+
+if (!$recent_activity) {
+    // If query fails, fall back to a simpler query
+    $recent_activity = $conn->query("SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 5");
+}
 
 // Set current page for sidebar highlighting
 $current_page = basename($_SERVER['PHP_SELF']);
@@ -116,7 +126,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                     <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
                                         <?php echo htmlspecialchars($activity['type']); ?>
                                     </span>
-                                    <p class="text-gray-600"><?php echo htmlspecialchars($activity['description']); ?></p>
+                                    <p class="text-gray-600">
+                                        <?php 
+                                        // Only show first name if it exists in the result set
+                                        if (isset($activity['first_name']) && !empty($activity['first_name'])) {
+                                            echo htmlspecialchars($activity['first_name']) . ': ';
+                                        }
+                                        echo htmlspecialchars($activity['description']); 
+                                        ?>
+                                    </p>
                                 </div>
                                 <span class="text-sm text-gray-500">
                                     <?php echo date('M d, H:i', strtotime($activity['created_at'])); ?>
