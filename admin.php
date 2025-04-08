@@ -66,11 +66,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <p class="text-green-500 text-sm"><?php echo $active_users; ?> active</p>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-gray-500 text-sm mb-2">Total Matches</h3>
-                        <p class="text-3xl font-bold"><?php echo $total_matches; ?></p>
-                        <p class="text-blue-500 text-sm">Today's matches: 5</p>
-                    </div>
+                   
 
                     <div class="bg-white rounded-lg shadow-md p-6">
                         <h3 class="text-gray-500 text-sm mb-2">Total News</h3>

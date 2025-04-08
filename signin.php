@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once 'includes/language.php';
+require_once 'google_config.php';
 
 // Database connection
 $host = 'localhost'; // Change this if your MySQL server is hosted somewhere else
@@ -15,13 +17,11 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Add this near the top
-if (isset($_SESSION['access_token'])) {
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
     header("Location: index.php");
-    exit;
+    exit();
 }
-
-
 
 // Handle the form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -169,8 +169,13 @@ $conn->close();
                     </div>
 
                     <div class="flex items-center justify-between">
-                       
-
+                        <div class="flex items-center">
+                            <input id="remember_me" name="remember_me" type="checkbox" 
+                                class="h-4 w-4 text-green-600 bg-gray-900 border-gray-700 rounded focus:ring-green-500">
+                            <label for="remember_me" class="ml-2 text-sm text-gray-400">
+                                Remember me
+                            </label>
+                        </div>
                         <div class="text-sm">
                             <a href="forgot.php" class="font-medium text-green-500 hover:text-green-400">
                                 Forgot your password?
@@ -179,13 +184,11 @@ $conn->close();
                     </div>
 
                     <div>
-                        <input type="submit" 
-                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                           value="Sign in"
-                        />
+                        <button type="submit" 
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                            Sign in
+                        </button>
                     </div>
-
-                  
                 </form>
 
                 <div class="mt-6">
@@ -199,9 +202,18 @@ $conn->close();
                     </div>
 
                     <div class="mt-6">
+                        <?php
+                        try {
+                            $client = getGoogleClient();
+                            $googleLoginUrl = $client->createAuthUrl();
+                        } catch (Exception $e) {
+                            error_log("Google client error: " . $e->getMessage());
+                            $googleLoginUrl = "#";
+                        }
+                        ?>
                         <a href="<?php echo htmlspecialchars($googleLoginUrl); ?>" 
                            class="w-full flex items-center justify-center px-4 py-3 border border-gray-700 rounded-lg shadow-sm bg-gray-900 hover:bg-gray-800 transition-colors duration-200">
-                            <img src="images/google-logo.png" alt="Google" class="h-5 w-5 mr-2">
+                            <img src="images/google-logo.svg" alt="Google" class="h-5 w-5 mr-2">
                             <span class="text-white">Sign in with Google</span>
                         </a>
                     </div>
@@ -209,5 +221,7 @@ $conn->close();
             </div>
         </div>
     </div>
+
+    <script src="js/auth.js"></script>
 </body>
 </html>

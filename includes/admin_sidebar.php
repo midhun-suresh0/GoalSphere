@@ -37,14 +37,7 @@
             </div>
         </div>
         
-        <div class="px-4 mt-8">
-            <h3 class="text-xs uppercase text-gray-500 font-semibold">Analytics</h3>
-            <div class="mt-4 space-y-2">
-                <a href="admin_reports.php" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">Purchase Reports</a>
-                <a href="#traffic" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">Traffic</a>
-                <a href="#activity" class="block px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-300">Activity Logs</a>
-            </div>
-        </div>
+       
     </nav>
 
     <div class="p-4 border-t border-gray-800">
